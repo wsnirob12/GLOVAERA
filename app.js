@@ -30,28 +30,58 @@
       containerWidth: 1160,
       sectionPadding: 94,
       heroGap: 60,
+      categoryGap: 14,
+      categoryImageFit: 'cover',
       socialGap: 12,
       socialColumns: 6,
-      socialRadius: 12,
-      categoryGap: 14,
-      categoryImageFit: 'cover'
+      socialRadius: 12
+    },
+
+    announcement: {
+      enabled: true,
+      text: '✦ COD Available · A New Era of Elegance'
+    },
+
+    hero: {
+      enabled: true,
+      eyebrow: 'A NEW ERA OF ELEGANCE',
+      title: 'Everyday elegance, effortlessly yours.',
+      description:
+        'Thoughtfully selected jewellery and accessories made to add a little glow to every day — without the luxury price tag.',
+      button1Text: 'Shop Collection',
+      button1Link: 'shop.html',
+      button2Text: 'Explore Combos',
+      button2Link: 'shop.html?combo=true',
+      image: 'logo.png',
+      imageFit: 'contain'
     },
 
     social: {
+      enabled: true,
       eyebrow: 'STAY IN THE GLOVAERA MOOD',
       title: 'Follow the edit',
       imageFit: 'cover',
-      images: [
-        'logo.png',
-        'logo.png',
-        'logo.png',
-        'logo.png',
-        'logo.png',
-        'logo.png'
-      ]
+      images: []
+    },
+
+    combo: {
+      enabled: true,
+      eyebrow: 'THE GLOVAERA EDIT',
+      title: 'More beauty. Better value.',
+      description:
+        'Discover easy-to-style combo sets designed for everyday wear, gifting and tiny moments worth celebrating.',
+      buttonText: 'Shop combos',
+      buttonLink: 'shop.html?combo=true',
+      badge: 'FEATURED COMBO',
+      productTitle: 'Soft Glow Set',
+      productDescription: 'Earrings + Ring + Hijab Pin',
+      price: '৳349',
+      image: '',
+      imageFit: 'cover'
     },
 
     faq: {
+      enabled: true,
       eyebrow: 'YOU ASKED, WE ANSWER',
       title: 'Frequently asked questions',
       items: [
@@ -71,16 +101,70 @@
             'Yes. Exchanges are handled according to the published GLOVAERA exchange policy.'
         }
       ]
+    },
+
+    about: {
+      eyebrow: 'WHY GLOVAERA',
+      title: 'Affordable luxury, made for everyday life.',
+      description:
+        'We believe elegance should feel beautiful, wearable and accessible. GLOVAERA curates modern jewellery and accessories for students, young women and anyone who loves a refined everyday look.',
+      feature1: 'Elegant',
+      feature2: 'Accessible',
+      feature3: 'Everyday'
     }
   };
 
-  window.GLOVAERA = {
-    ...(window.GLOVAERA || {}),
-    client,
-    cfg,
-    hasSupabase,
-    settings: defaultSettings
-  };
+  function mergeSettings(source) {
+    const data = source || {};
+
+    return {
+      branding: {
+        ...defaultSettings.branding,
+        ...(data.branding || {})
+      },
+
+      layout: {
+        ...defaultSettings.layout,
+        ...(data.layout || {})
+      },
+
+      announcement: {
+        ...defaultSettings.announcement,
+        ...(data.announcement || {})
+      },
+
+      hero: {
+        ...defaultSettings.hero,
+        ...(data.hero || {})
+      },
+
+      social: {
+        ...defaultSettings.social,
+        ...(data.social || {}),
+        images: Array.isArray(data.social?.images)
+          ? data.social.images
+          : defaultSettings.social.images
+      },
+
+      combo: {
+        ...defaultSettings.combo,
+        ...(data.combo || {})
+      },
+
+      faq: {
+        ...defaultSettings.faq,
+        ...(data.faq || {}),
+        items: Array.isArray(data.faq?.items)
+          ? data.faq.items
+          : defaultSettings.faq.items
+      },
+
+      about: {
+        ...defaultSettings.about,
+        ...(data.about || {})
+      }
+    };
+  }
 
   function escapeHtml(value = '') {
     return String(value).replace(
@@ -96,45 +180,13 @@
     );
   }
 
-  function mergeSettings(data) {
-    const source = data || {};
-
-    return {
-      branding: {
-        ...defaultSettings.branding,
-        ...(source.branding || {})
-      },
-
-      layout: {
-        ...defaultSettings.layout,
-        ...(source.layout || {})
-      },
-
-      social: {
-        ...defaultSettings.social,
-        ...(source.social || {}),
-        images: Array.isArray(source.social?.images)
-          ? source.social.images
-          : defaultSettings.social.images
-      },
-
-      faq: {
-        ...defaultSettings.faq,
-        ...(source.faq || {}),
-        items: Array.isArray(source.faq?.items)
-          ? source.faq.items
-          : defaultSettings.faq.items
-      }
-    };
-  }
-
   async function loadSiteSettings() {
     if (!client) {
       window.GLOVAERA.settings =
         mergeSettings(defaultSettings);
 
       applySiteSettings();
-      return window.GLOVAERA.settings;
+      return;
     }
 
     const { data, error } = await client
@@ -145,7 +197,7 @@
 
     if (error) {
       console.warn(
-        'Site settings could not be loaded:',
+        'Could not load site settings:',
         error
       );
 
@@ -157,8 +209,6 @@
     }
 
     applySiteSettings();
-
-    return window.GLOVAERA.settings;
   }
 
   function applySiteSettings() {
@@ -166,7 +216,8 @@
       window.GLOVAERA.settings ||
       defaultSettings;
 
-    const root = document.documentElement;
+    const root =
+      document.documentElement;
 
     root.style.setProperty(
       '--burgundy',
@@ -195,58 +246,185 @@
 
     root.style.setProperty(
       '--container-width',
-      `${Number(settings.layout.containerWidth) || 1160}px`
+      `${Number(
+        settings.layout.containerWidth
+      ) || 1160}px`
     );
 
     root.style.setProperty(
       '--section-padding',
-      `${Number(settings.layout.sectionPadding) || 94}px`
+      `${Number(
+        settings.layout.sectionPadding
+      ) || 94}px`
     );
 
     root.style.setProperty(
       '--hero-gap',
-      `${Number(settings.layout.heroGap) || 60}px`
-    );
-
-    root.style.setProperty(
-      '--social-gap',
-      `${Number(settings.layout.socialGap) || 12}px`
-    );
-
-    root.style.setProperty(
-      '--social-columns',
-      `${Number(settings.layout.socialColumns) || 6}`
-    );
-
-    root.style.setProperty(
-      '--social-radius',
-      `${Number(settings.layout.socialRadius) || 12}px`
+      `${Number(
+        settings.layout.heroGap
+      ) || 60}px`
     );
 
     root.style.setProperty(
       '--category-gap',
-      `${Number(settings.layout.categoryGap) || 14}px`
+      `${Number(
+        settings.layout.categoryGap
+      ) || 14}px`
     );
 
+    root.style.setProperty(
+      '--social-gap',
+      `${Number(
+        settings.layout.socialGap
+      ) || 12}px`
+    );
+
+    root.style.setProperty(
+      '--social-columns',
+      `${Number(
+        settings.layout.socialColumns
+      ) || 6}`
+    );
+
+    root.style.setProperty(
+      '--social-radius',
+      `${Number(
+        settings.layout.socialRadius
+      ) || 0}px`
+    );
+
+    renderAnnouncement();
+    renderHero();
     renderSocialGallery();
+    renderCombo();
     renderFaq();
+    renderAbout();
+  }
+
+  function renderAnnouncement() {
+    const bar =
+      document.getElementById(
+        'announcementBar'
+      );
+
+    if (!bar) return;
+
+    const announcement =
+      window.GLOVAERA.settings.announcement;
+
+    bar.hidden =
+      announcement.enabled === false;
+
+    bar.textContent =
+      announcement.text || '';
+  }
+
+  function renderHero() {
+    const section =
+      document.getElementById(
+        'heroSection'
+      );
+
+    if (!section) return;
+
+    const hero =
+      window.GLOVAERA.settings.hero;
+
+    section.hidden =
+      hero.enabled === false;
+
+    const eyebrow =
+      document.getElementById(
+        'heroEyebrow'
+      );
+
+    const title =
+      document.getElementById(
+        'heroTitle'
+      );
+
+    const description =
+      document.getElementById(
+        'heroDescription'
+      );
+
+    const button1 =
+      document.getElementById(
+        'heroButton1'
+      );
+
+    const button2 =
+      document.getElementById(
+        'heroButton2'
+      );
+
+    const image =
+      document.getElementById(
+        'heroImage'
+      );
+
+    if (eyebrow) {
+      eyebrow.textContent =
+        hero.eyebrow;
+    }
+
+    if (title) {
+      title.textContent =
+        hero.title;
+    }
+
+    if (description) {
+      description.textContent =
+        hero.description;
+    }
+
+    if (button1) {
+      button1.textContent =
+        hero.button1Text;
+      button1.href =
+        hero.button1Link;
+    }
+
+    if (button2) {
+      button2.textContent =
+        hero.button2Text;
+      button2.href =
+        hero.button2Link;
+    }
+
+    if (image) {
+      image.src =
+        hero.image || 'logo.png';
+
+      image.style.objectFit =
+        hero.imageFit || 'contain';
+    }
   }
 
   function renderSocialGallery() {
+    const section =
+      document.getElementById(
+        'socialSection'
+      );
+
     const gallery =
       document.getElementById(
         'socialGallery'
       );
 
-    if (!gallery) return;
-
-    const settings =
-      window.GLOVAERA.settings ||
-      defaultSettings;
+    if (!section || !gallery) return;
 
     const social =
-      settings.social ||
-      defaultSettings.social;
+      window.GLOVAERA.settings.social;
+
+    const images =
+      Array.isArray(social.images)
+        ? social.images.filter(Boolean)
+        : [];
+
+    section.hidden =
+      social.enabled === false ||
+      images.length === 0;
 
     const eyebrow =
       document.getElementById(
@@ -268,11 +446,6 @@
         social.title;
     }
 
-    const images =
-      Array.isArray(social.images)
-        ? social.images.filter(Boolean)
-        : [];
-
     gallery.innerHTML =
       images
         .map(
@@ -280,7 +453,9 @@
             <div class="social-gallery-item">
               <img
                 src="${escapeHtml(url)}"
-                alt="GLOVAERA edit ${index + 1}"
+                alt="GLOVAERA edit ${
+                  index + 1
+                }"
                 style="object-fit:${escapeHtml(
                   social.imageFit || 'cover'
                 )};"
@@ -291,21 +466,145 @@
         .join('');
   }
 
+  function renderCombo() {
+    const section =
+      document.getElementById(
+        'comboSection'
+      );
+
+    if (!section) return;
+
+    const combo =
+      window.GLOVAERA.settings.combo;
+
+    section.hidden =
+      combo.enabled === false;
+
+    const eyebrow =
+      document.getElementById(
+        'comboEyebrow'
+      );
+
+    const title =
+      document.getElementById(
+        'comboTitle'
+      );
+
+    const description =
+      document.getElementById(
+        'comboDescription'
+      );
+
+    const button =
+      document.getElementById(
+        'comboButton'
+      );
+
+    const badge =
+      document.getElementById(
+        'comboBadge'
+      );
+
+    const productTitle =
+      document.getElementById(
+        'comboProductTitle'
+      );
+
+    const productDescription =
+      document.getElementById(
+        'comboProductDescription'
+      );
+
+    const price =
+      document.getElementById(
+        'comboPrice'
+      );
+
+    const imageWrap =
+      document.getElementById(
+        'comboImageWrap'
+      );
+
+    const image =
+      document.getElementById(
+        'comboImage'
+      );
+
+    if (eyebrow) {
+      eyebrow.textContent =
+        combo.eyebrow;
+    }
+
+    if (title) {
+      title.textContent =
+        combo.title;
+    }
+
+    if (description) {
+      description.textContent =
+        combo.description;
+    }
+
+    if (button) {
+      button.textContent =
+        combo.buttonText;
+      button.href =
+        combo.buttonLink;
+    }
+
+    if (badge) {
+      badge.textContent =
+        combo.badge;
+    }
+
+    if (productTitle) {
+      productTitle.textContent =
+        combo.productTitle;
+    }
+
+    if (productDescription) {
+      productDescription.textContent =
+        combo.productDescription;
+    }
+
+    if (price) {
+      price.textContent =
+        combo.price;
+    }
+
+    if (image && imageWrap) {
+      if (combo.image) {
+        image.src =
+          combo.image;
+
+        image.style.objectFit =
+          combo.imageFit || 'cover';
+
+        imageWrap.hidden = false;
+      } else {
+        imageWrap.hidden = true;
+      }
+    }
+  }
+
   function renderFaq() {
+    const section =
+      document.getElementById(
+        'faqSection'
+      );
+
     const list =
       document.getElementById(
         'faqList'
       );
 
-    if (!list) return;
-
-    const settings =
-      window.GLOVAERA.settings ||
-      defaultSettings;
+    if (!section || !list) return;
 
     const faq =
-      settings.faq ||
-      defaultSettings.faq;
+      window.GLOVAERA.settings.faq;
+
+    section.hidden =
+      faq.enabled === false;
 
     const eyebrow =
       document.getElementById(
@@ -336,12 +635,14 @@
                 ? 'open'
                 : ''
             }>
+
               <summary>
                 <span>
                   ${escapeHtml(
                     item.question || ''
                   )}
                 </span>
+
                 <b>+</b>
               </summary>
 
@@ -350,10 +651,76 @@
                   item.answer || ''
                 )}
               </div>
+
             </details>
           `
         )
         .join('');
+  }
+
+  function renderAbout() {
+    const about =
+      window.GLOVAERA.settings.about;
+
+    const eyebrow =
+      document.getElementById(
+        'aboutEyebrow'
+      );
+
+    const title =
+      document.getElementById(
+        'aboutTitle'
+      );
+
+    const description =
+      document.getElementById(
+        'aboutDescription'
+      );
+
+    const f1 =
+      document.getElementById(
+        'aboutFeature1'
+      );
+
+    const f2 =
+      document.getElementById(
+        'aboutFeature2'
+      );
+
+    const f3 =
+      document.getElementById(
+        'aboutFeature3'
+      );
+
+    if (eyebrow) {
+      eyebrow.textContent =
+        about.eyebrow;
+    }
+
+    if (title) {
+      title.textContent =
+        about.title;
+    }
+
+    if (description) {
+      description.textContent =
+        about.description;
+    }
+
+    if (f1) {
+      f1.textContent =
+        about.feature1;
+    }
+
+    if (f2) {
+      f2.textContent =
+        about.feature2;
+    }
+
+    if (f3) {
+      f3.textContent =
+        about.feature3;
+    }
   }
 
   const demoProducts = [
@@ -369,99 +736,16 @@
       combo: false,
       image_url: 'logo.png',
       description:
-        'Delicate pearl-inspired earrings for everyday styling.',
-      material: 'Alloy + imitation pearl',
-      color: 'Gold'
-    },
-
-    {
-      id: 'demo-2',
-      name: 'Luna Jhumka',
-      category: 'Jhumka',
-      price: 240,
-      sale_price: 199,
-      stock: 8,
-      featured: true,
-      is_new: true,
-      combo: false,
-      image_url: 'logo.png',
-      description:
-        'Classic jhumka silhouette with a modern finish.',
-      material: 'Alloy',
-      color: 'Antique Gold'
-    },
-
-    {
-      id: 'demo-3',
-      name: 'Everyday Minimal Ring',
-      category: 'Rings',
-      price: 150,
-      sale_price: 120,
-      stock: 20,
-      featured: false,
-      is_new: true,
-      combo: false,
-      image_url: 'logo.png',
-      description:
-        'A simple stack-friendly ring for everyday looks.',
-      material: 'Alloy',
-      color: 'Gold'
-    },
-
-    {
-      id: 'demo-4',
-      name: 'Soft Glow Set',
-      category: 'Combos',
-      price: 420,
-      sale_price: 349,
-      stock: 6,
-      featured: true,
-      is_new: false,
-      combo: true,
-      image_url: 'logo.png',
-      description:
-        'Earrings + ring + hijab pin in one easy set.',
-      material: 'Mixed fashion jewellery',
-      color: 'Gold'
+        'Delicate pearl-inspired earrings for everyday styling.'
     }
   ];
 
   const demoCategories = [
     {
-      id: 'c1',
+      id: 'demo-cat-1',
       name: 'Earrings',
       slug: 'earrings',
-      image_url: 'logo.png'
-    },
-    {
-      id: 'c2',
-      name: 'Jhumka',
-      slug: 'jhumka',
-      image_url: 'logo.png'
-    },
-    {
-      id: 'c3',
-      name: 'Rings',
-      slug: 'rings',
-      image_url: 'logo.png'
-    },
-    {
-      id: 'c4',
-      name: 'Necklaces',
-      slug: 'necklaces',
-      image_url: 'logo.png'
-    },
-    {
-      id: 'c5',
-      name: 'Hijab Pins',
-      slug: 'hijab-pins',
-      image_url: 'logo.png'
-    },
-    {
-      id: 'c6',
-      name: 'Combos',
-      slug: 'combos',
-      image_url: 'logo.png'
+      image_url: ''
     }
   ];
 
@@ -517,9 +801,9 @@
   function money(value) {
     return `${
       cfg.currency || '৳'
-    }${Number(value || 0).toLocaleString(
-      'en-BD'
-    )}`;
+    }${Number(
+      value || 0
+    ).toLocaleString('en-BD')}`;
   }
 
   function cart() {
@@ -564,22 +848,15 @@
 
     const found =
       items.find(
-        item =>
-          item.id ===
-          product.id
-      );
-
-    const quantity =
-      Math.max(
-        1,
-        Number(qty || 1)
+        (item) =>
+          item.id === product.id
       );
 
     if (found) {
       found.qty =
         Math.min(
           found.qty +
-            quantity,
+            Number(qty || 1),
           stock
         );
     } else {
@@ -594,7 +871,7 @@
           product.image_url ||
           'logo.png',
         qty: Math.min(
-          quantity,
+          Number(qty || 1),
           stock
         )
       });
@@ -611,12 +888,10 @@
     return true;
   }
 
-  function removeFromCart(
-    id
-  ) {
+  function removeFromCart(id) {
     saveCart(
       cart().filter(
-        item =>
+        (item) =>
           item.id !== id
       )
     );
@@ -638,16 +913,14 @@
         '#cartCount'
       )
       .forEach(
-        element => {
+        (element) => {
           element.textContent =
             count;
         }
       );
   }
 
-  function productCard(
-    product
-  ) {
+  function productCard(product) {
     const price =
       Number(
         product.sale_price ??
@@ -706,8 +979,7 @@
 
           <div class="product-cat">
             ${escapeHtml(
-              product.category ||
-                ''
+              product.category || ''
             )}
           </div>
 
@@ -724,7 +996,6 @@
           </h3>
 
           <div class="price-row">
-
             <strong>
               ${money(price)}
             </strong>
@@ -758,10 +1029,7 @@
                 </button>
               `
               : `
-                <span
-                  class="quick-add"
-                  style="opacity:.5"
-                >
+                <span class="quick-add">
                   Out of stock
                 </span>
               `
@@ -808,39 +1076,60 @@
     catEl.innerHTML =
       categories
         .map(
-          category => `
-            <a
-              class="category-card"
-              href="shop.html?category=${encodeURIComponent(
-                category.name
-              )}"
-            >
-              <div class="category-image">
-                <img
-                  src="${
-                    category.image_url ||
-                    'logo.png'
-                  }"
-                  alt="${escapeHtml(
-                    category.name
-                  )}"
-                >
-              </div>
+          (category) => {
+            const image =
+              category.image_url ||
+              '';
 
-              <span>
-                ${escapeHtml(
+            return `
+              <a
+                class="category-card"
+                href="shop.html?category=${encodeURIComponent(
                   category.name
-                )}
-              </span>
-            </a>
-          `
+                )}"
+              >
+
+                <div class="category-image">
+
+                  ${
+                    image
+                      ? `
+                        <img
+                          src="${escapeHtml(
+                            image
+                          )}"
+                          alt="${escapeHtml(
+                            category.name
+                          )}"
+                        >
+                      `
+                      : `
+                        <div class="category-placeholder">
+                          ${escapeHtml(
+                            category.name
+                          )}
+                        </div>
+                      `
+                  }
+
+                </div>
+
+                <span>
+                  ${escapeHtml(
+                    category.name
+                  )}
+                </span>
+
+              </a>
+            `;
+          }
         )
         .join('');
 
     newEl.innerHTML =
       products
         .filter(
-          product =>
+          (product) =>
             product.is_new
         )
         .slice(0, 4)
@@ -850,58 +1139,130 @@
     bestEl.innerHTML =
       products
         .filter(
-          product =>
+          (product) =>
             product.featured
         )
         .slice(0, 4)
         .map(productCard)
         .join('');
+
+    document.addEventListener(
+      'click',
+      (event) => {
+        const button =
+          event.target.closest(
+            '[data-add]'
+          );
+
+        if (!button) return;
+
+        const id =
+          decodeURIComponent(
+            button.dataset.add
+          );
+
+        const product =
+          products.find(
+            (item) =>
+              item.id === id
+          );
+
+        if (!product) return;
+
+        if (
+          addToCart(
+            product,
+            1
+          )
+        ) {
+          button.textContent =
+            'Added ✓';
+
+          setTimeout(
+            () => {
+              button.textContent =
+                'Add to cart';
+            },
+            900
+          );
+        }
+      }
+    );
   }
 
   function initCommon() {
     updateCartCount();
 
-    document
-      .getElementById(
+    const menuButton =
+      document.getElementById(
         'menuBtn'
-      )
-      ?.addEventListener(
-        'click',
-        () => {
-          const menu =
-            document.getElementById(
-              'mobileNav'
-            );
-
-          if (menu) {
-            menu.hidden =
-              !menu.hidden;
-          }
-        }
       );
 
-    document
-      .getElementById(
+    menuButton?.addEventListener(
+      'click',
+      () => {
+        const menu =
+          document.getElementById(
+            'mobileNav'
+          );
+
+        if (menu) {
+          menu.hidden =
+            !menu.hidden;
+        }
+      }
+    );
+
+    const searchButton =
+      document.getElementById(
         'searchBtn'
-      )
-      ?.addEventListener(
-        'click',
-        () => {
-          location.href =
-            'shop.html';
-        }
       );
 
-    loadSiteSettings();
+    searchButton?.addEventListener(
+      'click',
+      () => {
+        location.href =
+          'shop.html';
+      }
+    );
+
+    const hasHomepageEditor =
+      document.getElementById(
+        'heroSection'
+      ) ||
+      document.getElementById(
+        'socialSection'
+      ) ||
+      document.getElementById(
+        'comboSection'
+      ) ||
+      document.getElementById(
+        'faqSection'
+      );
+
+    if (hasHomepageEditor) {
+      loadSiteSettings();
+    }
+
     wireHome();
   }
 
+  window.glovaera = {
+    ...(window.glovaera || {}),
+    client,
+    cfg,
+    hasSupabase
+  };
+
   window.GLOVAERA = {
-    ...window.GLOVAERA,
+    ...(window.GLOVAERA || {}),
     client,
     cfg,
     hasSupabase,
-    settings: defaultSettings,
+    settings:
+      mergeSettings(
+        defaultSettings
+      ),
     loadSiteSettings,
     applySiteSettings,
     getProducts,
