@@ -2847,3 +2847,144 @@ summary b{
   }
 
 }
+/* =========================================================
+   PROFESSIONAL POLICY PAGE
+   ========================================================= */
+
+.policy-hero{
+  padding:78px 0 48px;
+  background:
+    linear-gradient(
+      180deg,
+      #fff,
+      #f7efe7
+    );
+  border-bottom:1px solid var(--border);
+  text-align:center;
+}
+
+.policy-hero h1{
+  margin:10px 0 12px;
+  font-size:
+    clamp(
+      40px,
+      5vw,
+      58px
+    );
+}
+
+.policy-hero p{
+  max-width:680px;
+  margin:0 auto;
+  color:var(--muted);
+}
+
+.policy-layout{
+  display:grid;
+  grid-template-columns:
+    repeat(2,minmax(0,1fr));
+  gap:20px;
+}
+
+.policy-card{
+  padding:28px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:
+    0 12px 35px
+    rgba(74,23,48,.05);
+}
+
+.policy-icon{
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  margin-bottom:16px;
+  border-radius:50%;
+  background:#f5e8ed;
+  font-size:21px;
+}
+
+.policy-card h2{
+  margin:8px 0 12px;
+  font-size:28px;
+  color:var(--dark-burgundy);
+}
+
+.policy-card > p{
+  color:var(--muted);
+  line-height:1.8;
+}
+
+.policy-points{
+  margin-top:22px;
+  display:grid;
+  gap:15px;
+}
+
+.policy-points > div{
+  padding-top:15px;
+  border-top:1px solid #eee5e8;
+}
+
+.policy-points strong{
+  display:block;
+  margin-bottom:4px;
+  color:var(--dark-burgundy);
+  font-size:13px;
+}
+
+.policy-points p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.75;
+}
+
+.policy-help{
+  margin-top:25px;
+  padding:32px;
+  text-align:center;
+  background:
+    linear-gradient(
+      135deg,
+      var(--dark-burgundy),
+      var(--burgundy)
+    );
+  color:#fff;
+  border-radius:16px;
+}
+
+.policy-help h2{
+  margin:8px 0;
+  color:#fff;
+  font-size:30px;
+}
+
+.policy-help p{
+  max-width:600px;
+  margin:0 auto 20px;
+  color:#eadfe4;
+}
+
+.policy-help .eyebrow{
+  color:var(--light-gold);
+}
+
+@media(max-width:760px){
+
+  .policy-layout{
+    grid-template-columns:1fr;
+  }
+
+  .policy-card{
+    padding:22px;
+  }
+
+  .policy-help{
+    padding:26px 20px;
+  }
+
+}
