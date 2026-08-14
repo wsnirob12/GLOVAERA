@@ -8,10 +8,6 @@
     settings: null
   };
 
-  const client = () =>
-    window.GLOVAERA?.client || null;
-
-
   const defaultSettings = {
     branding: {
       burgundy: '#6D2348',
@@ -27,7 +23,9 @@
       heroGap: 60,
       socialGap: 12,
       socialColumns: 6,
-      socialRadius: 0
+      socialRadius: 12,
+      categoryGap: 14,
+      categoryImageFit: 'cover'
     },
 
     social: {
@@ -42,9 +40,30 @@
         'logo.png',
         'logo.png'
       ]
+    },
+
+    faq: {
+      eyebrow: 'YOU ASKED, WE ANSWER',
+      title: 'Frequently asked questions',
+      items: [
+        {
+          question: 'How can I place an order?',
+          answer:
+            'Add your favourite products to cart and complete the checkout form. Cash on Delivery is available.'
+        },
+        {
+          question: 'How much is delivery?',
+          answer:
+            'Delivery charges are calculated automatically during checkout based on your district.'
+        },
+        {
+          question: 'Can I request an exchange?',
+          answer:
+            'Yes. Exchanges are handled according to the published GLOVAERA exchange policy.'
+        }
+      ]
     }
   };
-
 
   const loginView =
     document.getElementById('loginView');
@@ -61,212 +80,177 @@
   const modalContent =
     document.getElementById('modalContent');
 
-
-  function deepClone(obj) {
-    return JSON.parse(JSON.stringify(obj));
-  }
+  const client =
+    () => window.GLOVAERA?.client || null;
 
 
-  function mergeSettings(source) {
+  function mergeSettings(data) {
 
-    const data = source || {};
+    const source = data || {};
 
     return {
       branding: {
         ...defaultSettings.branding,
-        ...(data.branding || {})
+        ...(source.branding || {})
       },
 
       layout: {
         ...defaultSettings.layout,
-        ...(data.layout || {})
+        ...(source.layout || {})
       },
 
       social: {
         ...defaultSettings.social,
-        ...(data.social || {})
+        ...(source.social || {}),
+        images:
+          Array.isArray(
+            source.social?.images
+          )
+            ? source.social.images
+            : defaultSettings.social.images
+      },
+
+      faq: {
+        ...defaultSettings.faq,
+        ...(source.faq || {}),
+        items:
+          Array.isArray(
+            source.faq?.items
+          )
+            ? source.faq.items
+            : defaultSettings.faq.items
       }
     };
   }
 
 
-  function setLoginMessage(
-    message,
-    error = true
-  ) {
-
-    if (!loginMsg) return;
-
-    loginMsg.textContent = message || '';
-
-    loginMsg.className = error
-      ? 'form-message error'
-      : 'form-message';
-  }
-
-
-  function setEditorMessage(
-    message,
-    error = false
-  ) {
-
-    const element =
-      document.getElementById(
-        'editorMessage'
-      );
-
-    if (!element) return;
-
-    element.textContent =
-      message || '';
-
-    element.className = error
-      ? 'form-message error'
-      : 'form-message success';
-  }
-
-
   function showModal(html) {
-
     modalContent.innerHTML = html;
     modal.hidden = false;
-
   }
 
 
   function closeModal() {
-
     modal.hidden = true;
+  }
 
+
+  function escapeHtml(value = '') {
+    return String(value).replace(
+      /[&<>'"]/g,
+      char =>
+        ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[char])
+    );
   }
 
 
   document
-    .getElementById('closeModal')
+    .getElementById(
+      'closeModal'
+    )
     ?.addEventListener(
       'click',
       closeModal
     );
 
 
-  /*
-   * =========================================================
-   * LOGIN
-   * =========================================================
-   */
+  /* =========================
+     LOGIN
+     ========================= */
 
   async function signIn(event) {
 
     event.preventDefault();
 
-    const supabase = client();
+    const supabase =
+      client();
 
     if (!supabase) {
 
-      setLoginMessage(
-        'Supabase connection পাওয়া যাচ্ছে না। config.js check করো।'
-      );
+      loginMsg.textContent =
+        'Supabase connection পাওয়া যাচ্ছে না।';
 
       return;
     }
 
-
-    setLoginMessage(
-      'Signing in...',
-      false
-    );
-
-
-    const formData =
-      new FormData(event.target);
-
+    const form =
+      new FormData(
+        event.target
+      );
 
     const {
       data,
       error
     } =
       await supabase.auth.signInWithPassword({
-
         email:
-          formData.get('email'),
-
+          form.get('email'),
         password:
-          formData.get('password')
-
+          form.get('password')
       });
-
 
     if (error) {
 
-      setLoginMessage(
-        error.message
-      );
+      loginMsg.textContent =
+        error.message;
 
       return;
     }
-
-
-    if (!data?.user) {
-
-      setLoginMessage(
-        'Login failed.'
-      );
-
-      return;
-    }
-
 
     state.user =
       data.user;
 
-
     const {
-      data: isAdmin,
+      data: admin,
       error: adminError
     } =
       await supabase.rpc(
         'is_admin'
       );
 
-
     if (
       adminError ||
-      !isAdmin
+      !admin
     ) {
 
-      await supabase.auth.signOut();
+      await supabase
+        .auth
+        .signOut();
 
-      setLoginMessage(
+      loginMsg.textContent =
         adminError
-          ? `Admin verification failed: ${adminError.message}`
-          : 'এই account-টি GLOVAERA admin নয়।'
-      );
+          ? adminError.message
+          : 'এই account admin নয়।';
 
       return;
     }
 
-
     await boot();
-
   }
 
 
   async function boot() {
 
-    loginView.hidden = true;
-    dashboard.hidden = false;
+    loginView.hidden =
+      true;
+
+    dashboard.hidden =
+      false;
 
     await refreshAll();
-    await loadEditorSettings();
-
+    await loadSiteSettings();
   }
 
 
-  /*
-   * =========================================================
-   * LOAD DATA
-   * =========================================================
-   */
+  /* =========================
+     DATA
+     ========================= */
 
   async function refreshAll() {
 
@@ -275,21 +259,20 @@
 
     if (!supabase) return;
 
-
     const [
-      productsResult,
-      categoriesResult,
-      ordersResult
+      products,
+      categories,
+      orders
     ] =
       await Promise.all([
-
         supabase
           .from('products')
           .select('*')
           .order(
             'created_at',
             {
-              ascending: false
+              ascending:
+                false
             }
           ),
 
@@ -304,67 +287,54 @@
           .order(
             'created_at',
             {
-              ascending: false
+              ascending:
+                false
             }
           )
-
       ]);
 
-
-    if (productsResult.error) {
+    if (products.error) {
       alert(
-        `Products error: ${productsResult.error.message}`
+        `Products error: ${products.error.message}`
       );
     }
 
-
-    if (categoriesResult.error) {
+    if (categories.error) {
       alert(
-        `Categories error: ${categoriesResult.error.message}`
+        `Categories error: ${categories.error.message}`
       );
     }
 
-
-    if (ordersResult.error) {
+    if (orders.error) {
       alert(
-        `Orders error: ${ordersResult.error.message}`
+        `Orders error: ${orders.error.message}`
       );
     }
-
 
     state.products =
-      productsResult.data || [];
+      products.data || [];
 
     state.categories =
-      categoriesResult.data || [];
+      categories.data || [];
 
     state.orders =
-      ordersResult.data || [];
-
+      orders.data || [];
 
     renderOverview();
     renderProducts();
     renderCategories();
     renderOrders();
-
   }
 
 
-  /*
-   * =========================================================
-   * OVERVIEW
-   * =========================================================
-   */
-
   function renderOverview() {
 
-    const element =
+    const grid =
       document.getElementById(
         'statsGrid'
       );
 
-    if (!element) return;
-
+    if (!grid) return;
 
     const pending =
       state.orders.filter(
@@ -378,73 +348,49 @@
           )
       ).length;
 
-
-    element.innerHTML = [
-
+    grid.innerHTML = [
       [
         'Products',
         state.products.length
       ],
-
       [
         'Categories',
         state.categories.length
       ],
-
       [
         'Orders',
         state.orders.length
       ],
-
       [
         'Pending',
         pending
       ]
-
     ]
       .map(
-        ([label, value]) => `
-
+        ([name, value]) => `
           <div class="stat-card">
-
-            <span>
-              ${label}
-            </span>
-
-            <strong>
-              ${value}
-            </strong>
-
+            <span>${name}</span>
+            <strong>${value}</strong>
           </div>
-
         `
       )
       .join('');
-
   }
 
 
-  /*
-   * =========================================================
-   * PRODUCTS
-   * =========================================================
-   */
-
   function renderProducts() {
 
-    const element =
+    const list =
       document.getElementById(
         'productAdminList'
       );
 
-    if (!element) return;
+    if (!list) return;
 
-
-    element.innerHTML =
+    list.innerHTML =
       state.products
         .map(
           product => `
-
             <div class="admin-row">
 
               <img
@@ -467,14 +413,11 @@
                   ${GLOVAERA.escapeHtml(
                     product.category || ''
                   )}
-
                   ·
-
                   ${GLOVAERA.money(
                     product.sale_price ??
-                    product.price
+                      product.price
                   )}
-
                   · Stock
                   ${product.stock ?? 0}
                 </span>
@@ -483,24 +426,19 @@
 
               <button
                 class="btn btn-secondary small"
-                data-edit-product="${
-                  product.id
-                }"
+                data-edit-product="${product.id}"
               >
                 Edit
               </button>
 
               <button
                 class="btn btn-danger small"
-                data-delete-product="${
-                  product.id
-                }"
+                data-delete-product="${product.id}"
               >
                 Delete
               </button>
 
             </div>
-
           `
         )
         .join('') ||
@@ -509,32 +447,31 @@
           No products yet.
         </div>
       `;
-
   }
 
 
-  /*
-   * =========================================================
-   * CATEGORIES
-   * =========================================================
-   */
-
   function renderCategories() {
 
-    const element =
+    const list =
       document.getElementById(
         'categoryAdminList'
       );
 
-    if (!element) return;
+    if (!list) return;
 
-
-    element.innerHTML =
+    list.innerHTML =
       state.categories
         .map(
           category => `
-
             <div class="admin-row">
+
+              <img
+                src="${
+                  category.image_url ||
+                  'logo.png'
+                }"
+                alt=""
+              >
 
               <div class="grow">
 
@@ -546,7 +483,8 @@
 
                 <span>
                   ${GLOVAERA.escapeHtml(
-                    category.slug || ''
+                    category.slug ||
+                      ''
                   )}
                 </span>
 
@@ -554,24 +492,19 @@
 
               <button
                 class="btn btn-secondary small"
-                data-edit-category="${
-                  category.id
-                }"
+                data-edit-category="${category.id}"
               >
                 Edit
               </button>
 
               <button
                 class="btn btn-danger small"
-                data-delete-category="${
-                  category.id
-                }"
+                data-delete-category="${category.id}"
               >
                 Delete
               </button>
 
             </div>
-
           `
         )
         .join('') ||
@@ -580,31 +513,22 @@
           No categories yet.
         </div>
       `;
-
   }
 
 
-  /*
-   * =========================================================
-   * ORDERS
-   * =========================================================
-   */
-
   function renderOrders() {
 
-    const element =
+    const list =
       document.getElementById(
         'orderAdminList'
       );
 
-    if (!element) return;
+    if (!list) return;
 
-
-    element.innerHTML =
+    list.innerHTML =
       state.orders
         .map(
           order => `
-
             <div class="admin-order">
 
               <div
@@ -612,10 +536,14 @@
               >
 
                 <strong>
-                  #${GLOVAERA.escapeHtml(
+                  #
+                  ${GLOVAERA.escapeHtml(
                     String(
                       order.id
-                    ).slice(0, 8)
+                    ).slice(
+                      0,
+                      8
+                    )
                   )}
                 </strong>
 
@@ -640,7 +568,8 @@
               <p>
                 ${GLOVAERA.escapeHtml(
                   order.address
-                )},
+                )}
+                ,
                 ${GLOVAERA.escapeHtml(
                   order.district
                 )}
@@ -655,9 +584,7 @@
               <div class="order-actions">
 
                 <select
-                  data-order-status="${
-                    order.id
-                  }"
+                  data-order-status="${order.id}"
                 >
 
                   ${
@@ -672,16 +599,16 @@
                       .map(
                         status =>
                           `
-                          <option
-                            ${
-                              status ===
-                              order.status
-                                ? 'selected'
-                                : ''
-                            }
-                          >
-                            ${status}
-                          </option>
+                            <option
+                              ${
+                                status ===
+                                order.status
+                                  ? 'selected'
+                                  : ''
+                              }
+                            >
+                              ${status}
+                            </option>
                           `
                       )
                       .join('')
@@ -692,7 +619,6 @@
               </div>
 
             </div>
-
           `
         )
         .join('') ||
@@ -701,22 +627,264 @@
           No orders yet.
         </div>
       `;
-
   }
 
 
-  /*
-   * =========================================================
-   * PRODUCT FORM
-   * =========================================================
-   */
+  /* =========================
+     CATEGORY FORM
+     ========================= */
+
+  function categoryForm(
+    category = {}
+  ) {
+
+    return `
+      <form
+        id="categoryForm"
+        class="form-grid"
+      >
+
+        <input
+          type="hidden"
+          name="id"
+          value="${
+            category.id || ''
+          }"
+        >
+
+        <label>
+          Name
+
+          <input
+            required
+            name="name"
+            value="${escapeHtml(
+              category.name || ''
+            )}"
+          >
+        </label>
+
+
+        <label>
+          Slug
+
+          <input
+            required
+            name="slug"
+            value="${escapeHtml(
+              category.slug || ''
+            )}"
+          >
+        </label>
+
+
+        <label class="full">
+
+          Category photo
+
+          <input
+            type="file"
+            name="category_image"
+            accept="image/*"
+          >
+
+        </label>
+
+
+        <div
+          class="category-upload-preview full"
+        >
+
+          <img
+            src="${
+              category.image_url ||
+              'logo.png'
+            }"
+            alt=""
+          >
+
+          <span>
+            Existing image
+          </span>
+
+        </div>
+
+
+        <label class="full">
+
+          Or image URL
+
+          <input
+            name="image_url"
+            value="${escapeHtml(
+              category.image_url ||
+                'logo.png'
+            )}"
+          >
+
+        </label>
+
+
+        <button
+          class="btn btn-primary full"
+          type="submit"
+        >
+          Save category
+        </button>
+
+      </form>
+    `;
+  }
+
+
+  async function saveCategory(
+    event
+  ) {
+
+    event.preventDefault();
+
+    const supabase =
+      client();
+
+    const form =
+      new FormData(
+        event.target
+      );
+
+    try {
+
+      let imageUrl =
+        form.get(
+          'image_url'
+        ) ||
+        'logo.png';
+
+      const file =
+        form.get(
+          'category_image'
+        );
+
+      if (
+        file &&
+        file.size
+      ) {
+
+        const safeName =
+          file.name.replace(
+            /[^a-zA-Z0-9._-]/g,
+            '-'
+          );
+
+        const path =
+          `categories/${crypto.randomUUID()}-${safeName}`;
+
+        const upload =
+          await supabase
+            .storage
+            .from(
+              'site-media'
+            )
+            .upload(
+              path,
+              file,
+              {
+                upsert:
+                  false,
+                contentType:
+                  file.type
+              }
+            );
+
+        if (upload.error) {
+          throw upload.error;
+        }
+
+        imageUrl =
+          supabase
+            .storage
+            .from(
+              'site-media'
+            )
+            .getPublicUrl(
+              path
+            )
+            .data
+            .publicUrl;
+      }
+
+      const record = {
+        name:
+          form.get(
+            'name'
+          ),
+
+        slug:
+          form.get(
+            'slug'
+          ),
+
+        image_url:
+          imageUrl
+      };
+
+      const id =
+        form.get(
+          'id'
+        );
+
+      const query =
+        id
+          ? supabase
+              .from(
+                'categories'
+              )
+              .update(
+                record
+              )
+              .eq(
+                'id',
+                id
+              )
+          : supabase
+              .from(
+                'categories'
+              )
+              .insert(
+                record
+              );
+
+      const {
+        error
+      } =
+        await query;
+
+      if (error) {
+        throw error;
+      }
+
+      closeModal();
+      await refreshAll();
+
+    } catch (error) {
+
+      alert(
+        `Category save failed: ${
+          error.message
+        }`
+      );
+    }
+  }
+
+
+  /* =========================
+     PRODUCT FORM
+     ========================= */
 
   function productForm(
     product = {}
   ) {
 
     return `
-
       <form
         id="productForm"
         class="form-grid"
@@ -735,16 +903,15 @@
           <input
             required
             name="name"
-            value="${
-              GLOVAERA.escapeHtml(
-                product.name || ''
-              )
-            }"
+            value="${escapeHtml(
+              product.name || ''
+            )}"
           >
         </label>
 
         <label>
           Category
+
           <select
             required
             name="category"
@@ -763,7 +930,7 @@
                             : ''
                         }
                       >
-                        ${GLOVAERA.escapeHtml(
+                        ${escapeHtml(
                           category.name
                         )}
                       </option>
@@ -773,15 +940,16 @@
             }
 
           </select>
+
         </label>
 
         <label>
           Price
+
           <input
             required
             type="number"
             min="0"
-            step="0.01"
             name="price"
             value="${
               product.price ?? 0
@@ -791,19 +959,21 @@
 
         <label>
           Sale price
+
           <input
             type="number"
             min="0"
-            step="0.01"
             name="sale_price"
             value="${
-              product.sale_price ?? ''
+              product.sale_price ??
+              ''
             }"
           >
         </label>
 
         <label>
           Stock
+
           <input
             required
             type="number"
@@ -817,19 +987,19 @@
 
         <label>
           Image URL
+
           <input
             name="image_url"
-            value="${
-              GLOVAERA.escapeHtml(
-                product.image_url ||
+            value="${escapeHtml(
+              product.image_url ||
                 'logo.png'
-              )
-            }"
+            )}"
           >
         </label>
 
         <label>
           Upload image
+
           <input
             type="file"
             accept="image/*"
@@ -839,15 +1009,15 @@
 
         <label class="full">
           Description
+
           <textarea
             name="description"
             rows="4"
-          >${
-            GLOVAERA.escapeHtml(
-              product.description ||
+          >${escapeHtml(
+            product.description ||
               ''
-            )
-          }</textarea>
+          )}</textarea>
+
         </label>
 
         <label>
@@ -897,9 +1067,7 @@
         </button>
 
       </form>
-
     `;
-
   }
 
 
@@ -917,7 +1085,6 @@
         event.target
       );
 
-
     try {
 
       let imageUrl =
@@ -925,12 +1092,10 @@
           'image_url'
         ) || 'logo.png';
 
-
       const file =
         form.get(
           'image_file'
         );
-
 
       if (
         file &&
@@ -943,10 +1108,8 @@
             '-'
           );
 
-
         const path =
           `${crypto.randomUUID()}-${safeName}`;
-
 
         const upload =
           await supabase
@@ -965,11 +1128,9 @@
               }
             );
 
-
         if (upload.error) {
           throw upload.error;
         }
-
 
         imageUrl =
           supabase
@@ -982,21 +1143,24 @@
             )
             .data
             .publicUrl;
-
       }
 
-
       const record = {
-
         name:
-          form.get('name'),
+          form.get(
+            'name'
+          ),
 
         category:
-          form.get('category'),
+          form.get(
+            'category'
+          ),
 
         price:
           Number(
-            form.get('price')
+            form.get(
+              'price'
+            )
           ),
 
         sale_price:
@@ -1012,7 +1176,9 @@
 
         stock:
           Number(
-            form.get('stock')
+            form.get(
+              'stock'
+            )
           ),
 
         image_url:
@@ -1040,201 +1206,18 @@
 
         active:
           true
-
       };
-
 
       const id =
         form.get(
           'id'
         );
-
-
-      const query =
-        id
-          ? supabase
-              .from('products')
-              .update(record)
-              .eq(
-                'id',
-                id
-              )
-          : supabase
-              .from('products')
-              .insert(
-                record
-              );
-
-
-      const {
-        error
-      } =
-        await query;
-
-
-      if (error) {
-        throw error;
-      }
-
-
-      closeModal();
-
-      await refreshAll();
-
-
-    } catch (error) {
-
-      console.error(
-        error
-      );
-
-      alert(
-        `Could not save product: ${
-          error.message
-        }`
-      );
-
-    }
-
-  }
-
-
-  /*
-   * =========================================================
-   * CATEGORY FORM
-   * =========================================================
-   */
-
-  function categoryForm(
-    category = {}
-  ) {
-
-    return `
-
-      <form
-        id="categoryForm"
-        class="form-grid"
-      >
-
-        <input
-          type="hidden"
-          name="id"
-          value="${
-            category.id || ''
-          }"
-        >
-
-        <label>
-          Name
-
-          <input
-            required
-            name="name"
-            value="${
-              GLOVAERA.escapeHtml(
-                category.name ||
-                ''
-              )
-            }"
-          >
-
-        </label>
-
-        <label>
-          Slug
-
-          <input
-            required
-            name="slug"
-            value="${
-              GLOVAERA.escapeHtml(
-                category.slug ||
-                ''
-              )
-            }"
-          >
-
-        </label>
-
-        <label class="full">
-
-          Image URL
-
-          <input
-            name="image_url"
-            value="${
-              GLOVAERA.escapeHtml(
-                category.image_url ||
-                'logo.png'
-              )
-            }"
-          >
-
-        </label>
-
-        <button
-          class="btn btn-primary full"
-          type="submit"
-        >
-          Save category
-        </button>
-
-      </form>
-
-    `;
-
-  }
-
-
-  async function saveCategory(
-    event
-  ) {
-
-    event.preventDefault();
-
-    const supabase =
-      client();
-
-    const form =
-      new FormData(
-        event.target
-      );
-
-
-    try {
-
-      const record = {
-
-        name:
-          form.get(
-            'name'
-          ),
-
-        slug:
-          form.get(
-            'slug'
-          ),
-
-        image_url:
-          form.get(
-            'image_url'
-          ) ||
-          'logo.png'
-
-      };
-
-
-      const id =
-        form.get(
-          'id'
-        );
-
 
       const query =
         id
           ? supabase
               .from(
-                'categories'
+                'products'
               )
               .update(
                 record
@@ -1245,55 +1228,43 @@
               )
           : supabase
               .from(
-                'categories'
+                'products'
               )
               .insert(
                 record
               );
-
 
       const {
         error
       } =
         await query;
 
-
       if (error) {
         throw error;
       }
 
-
       closeModal();
-
       await refreshAll();
-
 
     } catch (error) {
 
       alert(
-        `Could not save category: ${
+        `Product save failed: ${
           error.message
         }`
       );
-
     }
-
   }
 
 
-  /*
-   * =========================================================
-   * SITE EDITOR - LOAD
-   * =========================================================
-   */
+  /* =========================
+     SITE SETTINGS
+     ========================= */
 
-  async function loadEditorSettings() {
+  async function loadSiteSettings() {
 
     const supabase =
       client();
-
-    if (!supabase) return;
-
 
     const {
       data,
@@ -1312,22 +1283,16 @@
         )
         .maybeSingle();
 
-
     if (error) {
 
-      console.error(
-        error
-      );
-
-      setEditorMessage(
-        `Could not load editor settings: ${
+      alert(
+        `Site settings error: ${
           error.message
-        }`,
-        true
+        }`
       );
 
       state.settings =
-        deepClone(
+        mergeSettings(
           defaultSettings
         );
 
@@ -1337,335 +1302,130 @@
         mergeSettings(
           data?.settings
         );
-
     }
 
-
-    fillEditorFields();
-
+    fillEditor();
   }
 
 
-  /*
-   * =========================================================
-   * SITE EDITOR - FILL FORM
-   * =========================================================
-   */
+  function fillEditor() {
 
-  function fillEditorFields() {
+    const s =
+      state.settings;
 
-    const settings =
-      state.settings ||
-      deepClone(
-        defaultSettings
-      );
+    document.getElementById(
+      'settingBurgundyText'
+    ).value =
+      s.branding.burgundy;
 
+    document.getElementById(
+      'settingDarkBurgundyText'
+    ).value =
+      s.branding.darkBurgundy;
 
-    const brand =
-      settings.branding;
+    document.getElementById(
+      'settingGoldText'
+    ).value =
+      s.branding.gold;
 
-    const layout =
-      settings.layout;
+    document.getElementById(
+      'settingLightGoldText'
+    ).value =
+      s.branding.lightGold;
 
-    const social =
-      settings.social;
-
-
-    setColor(
-      'settingBurgundy',
-      'settingBurgundyText',
-      brand.burgundy
-    );
-
-    setColor(
-      'settingDarkBurgundy',
-      'settingDarkBurgundyText',
-      brand.darkBurgundy
-    );
-
-    setColor(
-      'settingGold',
-      'settingGoldText',
-      brand.gold
-    );
-
-    setColor(
-      'settingLightGold',
-      'settingLightGoldText',
-      brand.lightGold
-    );
-
-    setColor(
-      'settingIvory',
-      'settingIvoryText',
-      brand.ivory
-    );
+    document.getElementById(
+      'settingIvoryText'
+    ).value =
+      s.branding.ivory;
 
 
-    const containerWidth =
-      document.getElementById(
-        'settingContainerWidth'
-      );
+    document.getElementById(
+      'categoryFitInput'
+    ).value =
+      s.layout.categoryImageFit ||
+      'cover';
 
-    const containerValue =
-      document.getElementById(
-        'settingContainerWidthValue'
-      );
-
-    containerWidth.value =
-      Number(
-        layout.containerWidth
-      );
-
-    containerValue.textContent =
-      `${layout.containerWidth}px`;
-
-
-    const sectionPadding =
-      document.getElementById(
-        'settingSectionPadding'
-      );
-
-    const sectionValue =
-      document.getElementById(
-        'settingSectionPaddingValue'
-      );
-
-    sectionPadding.value =
-      Number(
-        layout.sectionPadding
-      );
-
-    sectionValue.textContent =
-      `${layout.sectionPadding}px`;
-
-
-    const heroGap =
-      document.getElementById(
-        'settingHeroGap'
-      );
-
-    const heroValue =
-      document.getElementById(
-        'settingHeroGapValue'
-      );
-
-    heroGap.value =
-      Number(
-        layout.heroGap
-      );
-
-    heroValue.textContent =
-      `${layout.heroGap}px`;
+    document.getElementById(
+      'categoryGapInput'
+    ).value =
+      s.layout.categoryGap ||
+      14;
 
 
     document.getElementById(
       'socialEyebrowInput'
     ).value =
-      social.eyebrow || '';
-
+      s.social.eyebrow;
 
     document.getElementById(
       'socialTitleInput'
     ).value =
-      social.title || '';
-
+      s.social.title;
 
     document.getElementById(
       'socialColumnsInput'
     ).value =
-      Number(
-        layout.socialColumns ||
-        6
-      );
-
-
-    const socialGap =
-      document.getElementById(
-        'socialGapInput'
-      );
-
-    socialGap.value =
-      Number(
-        layout.socialGap ||
-        12
-      );
+      s.layout.socialColumns;
 
     document.getElementById(
-      'socialGapValue'
-    ).textContent =
-      `${socialGap.value}px`;
-
-
-    const socialRadius =
-      document.getElementById(
-        'socialRadiusInput'
-      );
-
-    socialRadius.value =
-      Number(
-        layout.socialRadius ||
-        0
-      );
+      'socialGapInput'
+    ).value =
+      s.layout.socialGap;
 
     document.getElementById(
-      'socialRadiusValue'
-    ).textContent =
-      `${socialRadius.value}px`;
-
+      'socialRadiusInput'
+    ).value =
+      s.layout.socialRadius;
 
     document.getElementById(
       'socialFitInput'
     ).value =
-      social.imageFit ||
-      'cover';
+      s.social.imageFit;
+
+
+    document.getElementById(
+      'faqEyebrowInput'
+    ).value =
+      s.faq.eyebrow;
+
+    document.getElementById(
+      'faqTitleInput'
+    ).value =
+      s.faq.title;
 
 
     renderGalleryEditor();
-
+    renderFaqEditor();
   }
 
-
-  function setColor(
-    colorId,
-    textId,
-    value
-  ) {
-
-    const color =
-      document.getElementById(
-        colorId
-      );
-
-    const text =
-      document.getElementById(
-        textId
-      );
-
-
-    if (!color || !text) return;
-
-
-    color.value =
-      normalizeColor(
-        value
-      );
-
-    text.value =
-      normalizeColor(
-        value
-      );
-
-
-    color.oninput =
-      () => {
-        text.value =
-          color.value;
-      };
-
-
-    text.onchange =
-      () => {
-
-        const fixed =
-          normalizeColor(
-            text.value
-          );
-
-        if (!fixed) return;
-
-        text.value =
-          fixed;
-
-        color.value =
-          fixed;
-
-      };
-
-  }
-
-
-  function normalizeColor(
-    value
-  ) {
-
-    const text =
-      String(
-        value || ''
-      ).trim();
-
-
-    if (
-      /^#[0-9a-fA-F]{6}$/.test(
-        text
-      )
-    ) {
-
-      return text;
-
-    }
-
-
-    return '#000000';
-
-  }
-
-
-  /*
-   * =========================================================
-   * GALLERY EDITOR
-   * =========================================================
-   */
 
   function renderGalleryEditor() {
 
-    const list =
+    const box =
       document.getElementById(
         'galleryEditorList'
       );
 
-    if (!list) return;
-
-
     const images =
-      state.settings.social
-        .images || [];
+      state.settings.social.images ||
+      [];
 
-
-    if (!images.length) {
-
-      list.innerHTML = `
-        <div class="empty-state">
-          No gallery images.
-        </div>
-      `;
-
-      return;
-
-    }
-
-
-    list.innerHTML =
+    box.innerHTML =
       images
         .map(
           (url, index) => `
-
-            <div
-              class="gallery-editor-row"
-              data-gallery-index="${index}"
-            >
+            <div class="gallery-editor-row">
 
               <div class="gallery-preview">
 
                 <img
-                  src="${escapeAttr(
+                  src="${escapeHtml(
                     url
                   )}"
                   alt=""
-                >
+                />
 
               </div>
-
 
               <div class="gallery-editor-main">
 
@@ -1683,50 +1443,38 @@
                   )}
                 </span>
 
-
-                <div class="gallery-actions">
+                <div
+                  class="gallery-actions"
+                >
 
                   <button
                     type="button"
                     class="btn btn-secondary small"
-                    data-upload-gallery="${index}"
+                    data-gallery-replace="${index}"
                   >
                     Replace
                   </button>
 
-
                   <button
                     type="button"
                     class="btn btn-secondary small"
-                    data-move-gallery-up="${index}"
-                    ${
-                      index === 0
-                        ? 'disabled'
-                        : ''
-                    }
+                    data-gallery-up="${index}"
                   >
                     ↑
                   </button>
 
-
                   <button
                     type="button"
                     class="btn btn-secondary small"
-                    data-move-gallery-down="${index}"
-                    ${
-                      index === images.length - 1
-                        ? 'disabled'
-                        : ''
-                    }
+                    data-gallery-down="${index}"
                   >
                     ↓
                   </button>
 
-
                   <button
                     type="button"
                     class="btn btn-danger small"
-                    data-delete-gallery="${index}"
+                    data-gallery-delete="${index}"
                   >
                     Delete
                   </button>
@@ -1736,23 +1484,15 @@
               </div>
 
             </div>
-
           `
         )
         .join('');
-
   }
 
 
-  async function uploadGalleryImage(
+  async function uploadGallery(
     index
   ) {
-
-    const supabase =
-      client();
-
-    if (!supabase) return;
-
 
     const input =
       document.createElement(
@@ -1765,110 +1505,42 @@
     input.accept =
       'image/*';
 
-
     input.onchange =
       async () => {
 
         const file =
           input.files?.[0];
 
-
         if (!file) return;
-
 
         try {
 
-          const safeName =
-            file.name.replace(
-              /[^a-zA-Z0-9._-]/g,
-              '-'
+          const url =
+            await uploadSiteImage(
+              file,
+              'homepage'
             );
-
-
-          const path =
-            `homepage/${crypto.randomUUID()}-${safeName}`;
-
-
-          const upload =
-            await supabase
-              .storage
-              .from(
-                'site-media'
-              )
-              .upload(
-                path,
-                file,
-                {
-                  upsert:
-                    false,
-                  contentType:
-                    file.type
-                }
-              );
-
-
-          if (upload.error) {
-            throw upload.error;
-          }
-
-
-          const publicUrl =
-            supabase
-              .storage
-              .from(
-                'site-media'
-              )
-              .getPublicUrl(
-                path
-              )
-              .data
-              .publicUrl;
-
 
           state.settings.social.images[
             index
           ] =
-            publicUrl;
-
+            url;
 
           renderGalleryEditor();
 
-
-          setEditorMessage(
-            'Image uploaded. Save website settings চাপো।',
-            false
-          );
-
-
         } catch (error) {
 
-          console.error(
-            error
-          );
-
           alert(
-            `Image upload failed: ${
-              error.message
-            }`
+            error.message
           );
-
         }
-
       };
 
-
     input.click();
-
   }
 
 
-  async function addGalleryImage() {
-
-    const supabase =
-      client();
-
-    if (!supabase) return;
-
+  async function addGallery() {
 
     const input =
       document.createElement(
@@ -1881,322 +1553,328 @@
     input.accept =
       'image/*';
 
-
     input.onchange =
       async () => {
 
         const file =
           input.files?.[0];
 
-
         if (!file) return;
-
 
         try {
 
-          const safeName =
-            file.name.replace(
-              /[^a-zA-Z0-9._-]/g,
-              '-'
+          const url =
+            await uploadSiteImage(
+              file,
+              'homepage'
             );
 
-
-          const path =
-            `homepage/${crypto.randomUUID()}-${safeName}`;
-
-
-          const upload =
-            await supabase
-              .storage
-              .from(
-                'site-media'
-              )
-              .upload(
-                path,
-                file,
-                {
-                  upsert:
-                    false,
-                  contentType:
-                    file.type
-                }
-              );
-
-
-          if (upload.error) {
-            throw upload.error;
-          }
-
-
-          const publicUrl =
-            supabase
-              .storage
-              .from(
-                'site-media'
-              )
-              .getPublicUrl(
-                path
-              )
-              .data
-              .publicUrl;
-
-
           state.settings.social.images.push(
-            publicUrl
+            url
           );
-
 
           renderGalleryEditor();
 
-
-          setEditorMessage(
-            'New image added. Save website settings চাপো।',
-            false
-          );
-
-
         } catch (error) {
 
-          console.error(
-            error
-          );
-
           alert(
-            `Image upload failed: ${
-              error.message
-            }`
+            error.message
           );
-
         }
-
       };
 
-
     input.click();
-
   }
 
 
-  function moveGalleryImage(
-    index,
-    direction
-  ) {
-
-    const images =
-      state.settings.social.images;
-
-
-    const target =
-      index + direction;
-
-
-    if (
-      target < 0 ||
-      target >= images.length
-    ) {
-      return;
-    }
-
-
-    [
-      images[index],
-      images[target]
-    ] =
-    [
-      images[target],
-      images[index]
-    ];
-
-
-    renderGalleryEditor();
-
-  }
-
-
-  function deleteGalleryImage(
+  function deleteGallery(
     index
   ) {
 
     if (
       !confirm(
-        'এই image-টি remove করতে চাও?'
+        'এই ছবি remove করবে?'
       )
-    ) {
-      return;
-    }
-
+    ) return;
 
     state.settings.social.images.splice(
       index,
       1
     );
 
+    renderGalleryEditor();
+  }
+
+
+  function moveGallery(
+    index,
+    amount
+  ) {
+
+    const target =
+      index + amount;
+
+    const items =
+      state.settings.social.images;
+
+    if (
+      target < 0 ||
+      target >= items.length
+    ) return;
+
+    [
+      items[index],
+      items[target]
+    ] =
+    [
+      items[target],
+      items[index]
+    ];
 
     renderGalleryEditor();
-
   }
 
 
-  /*
-   * =========================================================
-   * SITE EDITOR - COLLECT VALUES
-   * =========================================================
-   */
+  /* =========================
+     FAQ EDITOR
+     ========================= */
 
-  function collectEditorSettings() {
+  function renderFaqEditor() {
 
-    const current =
-      mergeSettings(
-        state.settings
+    const box =
+      document.getElementById(
+        'faqEditorList'
       );
 
+    const items =
+      state.settings.faq.items ||
+      [];
 
-    current.branding.burgundy =
-      document.getElementById(
-        'settingBurgundyText'
-      ).value;
+    box.innerHTML =
+      items
+        .map(
+          (item, index) => `
+            <div
+              class="faq-editor-item"
+            >
 
+              <div
+                class="faq-editor-number"
+              >
+                ${index + 1}
+              </div>
 
-    current.branding.darkBurgundy =
-      document.getElementById(
-        'settingDarkBurgundyText'
-      ).value;
+              <div
+                class="faq-editor-fields"
+              >
 
+                <input
+                  type="text"
+                  data-faq-question="${index}"
+                  value="${escapeHtml(
+                    item.question || ''
+                  )}"
+                  placeholder="Question"
+                />
 
-    current.branding.gold =
-      document.getElementById(
-        'settingGoldText'
-      ).value;
+                <textarea
+                  rows="3"
+                  data-faq-answer="${index}"
+                  placeholder="Answer"
+                >${escapeHtml(
+                  item.answer || ''
+                )}</textarea>
 
+                <div
+                  class="gallery-actions"
+                >
 
-    current.branding.lightGold =
-      document.getElementById(
-        'settingLightGoldText'
-      ).value;
+                  <button
+                    type="button"
+                    class="btn btn-secondary small"
+                    data-faq-up="${index}"
+                  >
+                    ↑
+                  </button>
 
+                  <button
+                    type="button"
+                    class="btn btn-secondary small"
+                    data-faq-down="${index}"
+                  >
+                    ↓
+                  </button>
 
-    current.branding.ivory =
-      document.getElementById(
-        'settingIvoryText'
-      ).value;
+                  <button
+                    type="button"
+                    class="btn btn-danger small"
+                    data-faq-delete="${index}"
+                  >
+                    Delete
+                  </button>
 
+                </div>
 
-    current.layout.containerWidth =
-      Number(
-        document.getElementById(
-          'settingContainerWidth'
-        ).value
-      );
+              </div>
 
-
-    current.layout.sectionPadding =
-      Number(
-        document.getElementById(
-          'settingSectionPadding'
-        ).value
-      );
-
-
-    current.layout.heroGap =
-      Number(
-        document.getElementById(
-          'settingHeroGap'
-        ).value
-      );
-
-
-    current.layout.socialColumns =
-      Number(
-        document.getElementById(
-          'socialColumnsInput'
-        ).value
-      );
-
-
-    current.layout.socialGap =
-      Number(
-        document.getElementById(
-          'socialGapInput'
-        ).value
-      );
-
-
-    current.layout.socialRadius =
-      Number(
-        document.getElementById(
-          'socialRadiusInput'
-        ).value
-      );
-
-
-    current.social.eyebrow =
-      document.getElementById(
-        'socialEyebrowInput'
-      ).value.trim();
-
-
-    current.social.title =
-      document.getElementById(
-        'socialTitleInput'
-      ).value.trim();
-
-
-    current.social.imageFit =
-      document.getElementById(
-        'socialFitInput'
-      ).value;
-
-
-    current.social.images =
-      [
-        ...(state.settings.social.images || [])
-      ];
-
-
-    return mergeSettings(
-      current
-    );
-
+            </div>
+          `
+        )
+        .join('');
   }
 
 
-  /*
-   * =========================================================
-   * SAVE SITE SETTINGS
-   * =========================================================
-   */
+  function addFaq() {
+
+    state.settings.faq.items.push({
+      question:
+        'New question',
+      answer:
+        'Write the answer here.'
+    });
+
+    renderFaqEditor();
+  }
+
+
+  function collectFaqFields() {
+
+    state.settings.faq.items =
+      state.settings.faq.items.map(
+        (item, index) => {
+
+          const question =
+            document.querySelector(
+              `[data-faq-question="${index}"]`
+            );
+
+          const answer =
+            document.querySelector(
+              `[data-faq-answer="${index}"]`
+            );
+
+          return {
+            question:
+              question?.value.trim() ||
+              '',
+            answer:
+              answer?.value.trim() ||
+              ''
+          };
+        }
+      );
+  }
+
+
+  /* =========================
+     SAVE
+     ========================= */
 
   async function saveSiteSettings() {
-
-    const supabase =
-      client();
-
-    if (!supabase) return;
-
 
     const button =
       document.getElementById(
         'saveSiteSettingsBtn'
       );
 
+    collectFaqFields();
 
-    try {
+    state.settings.layout.categoryImageFit =
+      document.getElementById(
+        'categoryFitInput'
+      ).value;
 
-      button.disabled =
-        true;
+    state.settings.layout.categoryGap =
+      Number(
+        document.getElementById(
+          'categoryGapInput'
+        ).value
+      );
 
-      button.textContent =
-        'Saving...';
+    state.settings.social.eyebrow =
+      document.getElementById(
+        'socialEyebrowInput'
+      ).value.trim();
+
+    state.settings.social.title =
+      document.getElementById(
+        'socialTitleInput'
+      ).value.trim();
+
+    state.settings.social.imageFit =
+      document.getElementById(
+        'socialFitInput'
+      ).value;
+
+    state.settings.layout.socialColumns =
+      Number(
+        document.getElementById(
+          'socialColumnsInput'
+        ).value
+      );
+
+    state.settings.layout.socialGap =
+      Number(
+        document.getElementById(
+          'socialGapInput'
+        ).value
+      );
+
+    state.settings.layout.socialRadius =
+      Number(
+        document.getElementById(
+          'socialRadiusInput'
+        ).value
+      );
+
+    state.settings.faq.eyebrow =
+      document.getElementById(
+        'faqEyebrowInput'
+      ).value.trim();
+
+    state.settings.faq.title =
+      document.getElementById(
+        'faqTitleInput'
+      ).value.trim();
 
 
-      const settings =
-        collectEditorSettings();
+    state.settings.branding.burgundy =
+      document.getElementById(
+        'settingBurgundyText'
+      ).value.trim();
+
+    state.settings.branding.darkBurgundy =
+      document.getElementById(
+        'settingDarkBurgundyText'
+      ).value.trim();
+
+    state.settings.branding.gold =
+      document.getElementById(
+        'settingGoldText'
+      ).value.trim();
+
+    state.settings.branding.lightGold =
+      document.getElementById(
+        'settingLightGoldText'
+      ).value.trim();
+
+    state.settings.branding.ivory =
+      document.getElementById(
+        'settingIvoryText'
+      ).value.trim();
 
 
-      const {
-        error
-      } =
-      await supabase
+    button.disabled =
+      true;
+
+    button.textContent =
+      'Saving...';
+
+
+    const {
+      error
+    } =
+      await client()
         .from(
           'site_settings'
         )
@@ -2205,7 +1883,8 @@
             id:
               'global',
 
-            settings,
+            settings:
+              state.settings,
 
             updated_at:
               new Date().toISOString()
@@ -2217,75 +1896,107 @@
         );
 
 
-      if (error) {
-        throw error;
-      }
+    button.disabled =
+      false;
+
+    button.textContent =
+      'Save website settings';
 
 
-      state.settings =
-        settings;
+    if (error) {
 
-
-      if (
-        window.GLOVAERA
-          ?.applySiteSettings
-      ) {
-
-        window.GLOVAERA.applySiteSettings();
-
-      }
-
-
-      setEditorMessage(
-        'Website settings successfully saved ✓',
-        false
-      );
-
-
-    } catch (error) {
-
-      console.error(
-        error
-      );
-
-      setEditorMessage(
+      alert(
         `Save failed: ${
           error.message
-        }`,
-        true
+        }`
       );
 
-    } finally {
-
-      button.disabled =
-        false;
-
-      button.textContent =
-        'Save website settings';
-
+      return;
     }
 
+
+    if (
+      window.GLOVAERA
+        ?.applySiteSettings
+    ) {
+
+      window.GLOVAERA
+        .settings =
+        state.settings;
+
+      window.GLOVAERA
+        .applySiteSettings();
+    }
+
+
+    alert(
+      'Website settings saved successfully ✓'
+    );
   }
 
 
-  /*
-   * =========================================================
-   * DELETE / UPDATE
-   * =========================================================
-   */
-
-  async function deleteProduct(
-    id
+  async function uploadSiteImage(
+    file,
+    folder
   ) {
+
+    const supabase =
+      client();
+
+    const safeName =
+      file.name.replace(
+        /[^a-zA-Z0-9._-]/g,
+        '-'
+      );
+
+    const path =
+      `${folder}/${crypto.randomUUID()}-${safeName}`;
+
+    const upload =
+      await supabase
+        .storage
+        .from(
+          'site-media'
+        )
+        .upload(
+          path,
+          file,
+          {
+            upsert:
+              false,
+            contentType:
+              file.type
+          }
+        );
+
+    if (upload.error) {
+      throw upload.error;
+    }
+
+    return supabase
+      .storage
+      .from(
+        'site-media'
+      )
+      .getPublicUrl(
+        path
+      )
+      .data
+      .publicUrl;
+  }
+
+
+  /* =========================
+     DELETE / UPDATE
+     ========================= */
+
+  async function deleteProduct(id) {
 
     if (
       !confirm(
         'Delete this product?'
       )
-    ) {
-      return;
-    }
-
+    ) return;
 
     const {
       error
@@ -2300,35 +2011,22 @@
           id
         );
 
-
     if (error) {
-
-      alert(
-        error.message
-      );
-
+      alert(error.message);
       return;
-
     }
 
-
     await refreshAll();
-
   }
 
 
-  async function deleteCategory(
-    id
-  ) {
+  async function deleteCategory(id) {
 
     if (
       !confirm(
         'Delete this category?'
       )
-    ) {
-      return;
-    }
-
+    ) return;
 
     const {
       error
@@ -2343,24 +2041,16 @@
           id
         );
 
-
     if (error) {
-
-      alert(
-        error.message
-      );
-
+      alert(error.message);
       return;
-
     }
 
-
     await refreshAll();
-
   }
 
 
-  async function updateOrderStatus(
+  async function updateOrder(
     id,
     status
   ) {
@@ -2380,28 +2070,18 @@
           id
         );
 
-
     if (error) {
-
-      alert(
-        error.message
-      );
-
+      alert(error.message);
       return;
-
     }
 
-
     await refreshAll();
-
   }
 
 
-  /*
-   * =========================================================
-   * EVENTS
-   * =========================================================
-   */
+  /* =========================
+     EVENT LISTENERS
+     ========================= */
 
   document
     .getElementById(
@@ -2426,33 +2106,6 @@
           .signOut();
 
         location.reload();
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      'addProductBtn'
-    )
-    ?.addEventListener(
-      'click',
-      () => {
-
-        showModal(
-          `<h2>Add product</h2>${productForm()}`
-        );
-
-
-        document
-          .getElementById(
-            'productForm'
-          )
-          ?.addEventListener(
-            'submit',
-            saveProduct
-          );
-
       }
     );
 
@@ -2466,9 +2119,14 @@
       () => {
 
         showModal(
-          `<h2>Add category</h2>${categoryForm()}`
-        );
+          `
+            <h2>
+              Add category
+            </h2>
 
+            ${categoryForm()}
+          `
+        );
 
         document
           .getElementById(
@@ -2478,7 +2136,36 @@
             'submit',
             saveCategory
           );
+      }
+    );
 
+
+  document
+    .getElementById(
+      'addProductBtn'
+    )
+    ?.addEventListener(
+      'click',
+      () => {
+
+        showModal(
+          `
+            <h2>
+              Add product
+            </h2>
+
+            ${productForm()}
+          `
+        );
+
+        document
+          .getElementById(
+            'productForm'
+          )
+          ?.addEventListener(
+            'submit',
+            saveProduct
+          );
       }
     );
 
@@ -2509,92 +2196,17 @@
     )
     ?.addEventListener(
       'click',
-      addGalleryImage
+      addGallery
     );
 
 
   document
     .getElementById(
-      'settingContainerWidth'
+      'addFaqBtn'
     )
     ?.addEventListener(
-      'input',
-      event => {
-
-        document.getElementById(
-          'settingContainerWidthValue'
-        ).textContent =
-          `${event.target.value}px`;
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      'settingSectionPadding'
-    )
-    ?.addEventListener(
-      'input',
-      event => {
-
-        document.getElementById(
-          'settingSectionPaddingValue'
-        ).textContent =
-          `${event.target.value}px`;
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      'settingHeroGap'
-    )
-    ?.addEventListener(
-      'input',
-      event => {
-
-        document.getElementById(
-          'settingHeroGapValue'
-        ).textContent =
-          `${event.target.value}px`;
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      'socialGapInput'
-    )
-    ?.addEventListener(
-      'input',
-      event => {
-
-        document.getElementById(
-          'socialGapValue'
-        ).textContent =
-          `${event.target.value}px`;
-
-      }
-    );
-
-
-  document
-    .getElementById(
-      'socialRadiusInput'
-    )
-    ?.addEventListener(
-      'input',
-      event => {
-
-        document.getElementById(
-          'socialRadiusValue'
-        ).textContent =
-          `${event.target.value}px`;
-
-      }
+      'click',
+      addFaq
     );
 
 
@@ -2603,9 +2215,9 @@
       '.tab'
     )
     .forEach(
-      button => {
+      tab => {
 
-        button.addEventListener(
+        tab.addEventListener(
           'click',
           () => {
 
@@ -2620,11 +2232,9 @@
                   )
               );
 
-
-            button.classList.add(
+            tab.classList.add(
               'active'
             );
-
 
             document
               .querySelectorAll(
@@ -2636,21 +2246,17 @@
                     true
               );
 
-
             const target =
               document.getElementById(
-                `tab-${button.dataset.tab}`
+                `tab-${tab.dataset.tab}`
               );
-
 
             if (target) {
               target.hidden =
                 false;
             }
-
           }
         );
-
       }
     );
 
@@ -2659,78 +2265,10 @@
     'click',
     event => {
 
-      const editProduct =
-        event.target.closest(
-          '[data-edit-product]'
-        );
-
-
-      if (editProduct) {
-
-        const product =
-          state.products.find(
-            item =>
-              String(
-                item.id
-              ) ===
-              String(
-                editProduct.dataset
-                  .editProduct
-              )
-          );
-
-
-        if (!product) return;
-
-
-        showModal(
-          `<h2>Edit product</h2>${productForm(
-            product
-          )}`
-        );
-
-
-        document
-          .getElementById(
-            'productForm'
-          )
-          ?.addEventListener(
-            'submit',
-            saveProduct
-          );
-
-
-        return;
-
-      }
-
-
-      const deleteProductButton =
-        event.target.closest(
-          '[data-delete-product]'
-        );
-
-
-      if (
-        deleteProductButton
-      ) {
-
-        deleteProduct(
-          deleteProductButton
-            .dataset
-            .deleteProduct
-        );
-
-        return;
-
-      }
-
-
       const editCategory =
         event.target.closest(
           '[data-edit-category]'
         );
-
 
       if (editCategory) {
 
@@ -2746,16 +2284,19 @@
               )
           );
 
-
         if (!category) return;
 
-
         showModal(
-          `<h2>Edit category</h2>${categoryForm(
-            category
-          )}`
-        );
+          `
+            <h2>
+              Edit category
+            </h2>
 
+            ${categoryForm(
+              category
+            )}
+          `
+        );
 
         document
           .getElementById(
@@ -2766,114 +2307,251 @@
             saveCategory
           );
 
-
         return;
-
       }
 
 
-      const deleteCategoryButton =
+      const deleteCat =
         event.target.closest(
           '[data-delete-category]'
         );
 
-
-      if (
-        deleteCategoryButton
-      ) {
+      if (deleteCat) {
 
         deleteCategory(
-          deleteCategoryButton
-            .dataset
+          deleteCat.dataset
             .deleteCategory
         );
 
         return;
-
       }
 
 
-      const uploadGallery =
+      const editProduct =
         event.target.closest(
-          '[data-upload-gallery]'
+          '[data-edit-product]'
         );
 
+      if (editProduct) {
 
-      if (uploadGallery) {
+        const product =
+          state.products.find(
+            item =>
+              String(
+                item.id
+              ) ===
+              String(
+                editProduct.dataset
+                  .editProduct
+              )
+          );
 
-        uploadGalleryImage(
+        if (!product) return;
+
+        showModal(
+          `
+            <h2>
+              Edit product
+            </h2>
+
+            ${productForm(
+              product
+            )}
+          `
+        );
+
+        document
+          .getElementById(
+            'productForm'
+          )
+          ?.addEventListener(
+            'submit',
+            saveProduct
+          );
+
+        return;
+      }
+
+
+      const deleteProd =
+        event.target.closest(
+          '[data-delete-product]'
+        );
+
+      if (deleteProd) {
+
+        deleteProduct(
+          deleteProd.dataset
+            .deleteProduct
+        );
+
+        return;
+      }
+
+
+      const replaceGallery =
+        event.target.closest(
+          '[data-gallery-replace]'
+        );
+
+      if (replaceGallery) {
+
+        uploadGallery(
           Number(
-            uploadGallery.dataset
-              .uploadGallery
+            replaceGallery.dataset
+              .galleryReplace
           )
         );
 
         return;
-
       }
 
 
-      const moveUp =
+      const up =
         event.target.closest(
-          '[data-move-gallery-up]'
+          '[data-gallery-up]'
         );
 
+      if (up) {
 
-      if (moveUp) {
-
-        moveGalleryImage(
+        moveGallery(
           Number(
-            moveUp.dataset
-              .moveGalleryUp
+            up.dataset.galleryUp
           ),
           -1
         );
 
         return;
-
       }
 
 
-      const moveDown =
+      const down =
         event.target.closest(
-          '[data-move-gallery-down]'
+          '[data-gallery-down]'
         );
 
+      if (down) {
 
-      if (moveDown) {
-
-        moveGalleryImage(
+        moveGallery(
           Number(
-            moveDown.dataset
-              .moveGalleryDown
+            down.dataset.galleryDown
           ),
           1
         );
 
         return;
-
       }
 
 
-      const deleteGallery =
+      const deleteGalleryButton =
         event.target.closest(
-          '[data-delete-gallery]'
+          '[data-gallery-delete]'
         );
 
+      if (
+        deleteGalleryButton
+      ) {
 
-      if (deleteGallery) {
-
-        deleteGalleryImage(
+        deleteGallery(
           Number(
-            deleteGallery.dataset
-              .deleteGallery
+            deleteGalleryButton
+              .dataset
+              .galleryDelete
           )
         );
+
+        return;
+      }
+
+
+      const faqUp =
+        event.target.closest(
+          '[data-faq-up]'
+        );
+
+      if (faqUp) {
+
+        moveFaq(
+          Number(
+            faqUp.dataset
+              .faqUp
+          ),
+          -1
+        );
+
+        return;
+      }
+
+
+      const faqDown =
+        event.target.closest(
+          '[data-faq-down]'
+        );
+
+      if (faqDown) {
+
+        moveFaq(
+          Number(
+            faqDown.dataset
+              .faqDown
+          ),
+          1
+        );
+
+        return;
+      }
+
+
+      const faqDelete =
+        event.target.closest(
+          '[data-faq-delete]'
+        );
+
+      if (faqDelete) {
+
+        state.settings.faq.items.splice(
+          Number(
+            faqDelete.dataset
+              .faqDelete
+          ),
+          1
+        );
+
+        renderFaqEditor();
 
       }
 
     }
   );
+
+
+  function moveFaq(
+    index,
+    amount
+  ) {
+
+    const target =
+      index + amount;
+
+    const items =
+      state.settings.faq.items;
+
+    if (
+      target < 0 ||
+      target >= items.length
+    ) return;
+
+    [
+      items[index],
+      items[target]
+    ] =
+    [
+      items[target],
+      items[index]
+    ];
+
+    renderFaqEditor();
+  }
 
 
   document.addEventListener(
@@ -2885,25 +2563,16 @@
           '[data-order-status]'
         );
 
-
       if (!select) return;
 
-
-      updateOrderStatus(
+      updateOrder(
         select.dataset
           .orderStatus,
         select.value
       );
-
     }
   );
 
-
-  /*
-   * =========================================================
-   * SESSION RESTORE
-   * =========================================================
-   */
 
   if (
     window.GLOVAERA
@@ -2919,89 +2588,35 @@
           error
         }) => {
 
-          if (error) {
-
-            console.error(
-              error
-            );
-
-            return;
-
-          }
-
-
           if (
+            error ||
             !data?.session
           ) {
             return;
           }
 
-
           const {
-            data: isAdmin,
-            error: adminError
+            data: admin
           } =
             await client().rpc(
               'is_admin'
             );
 
-
-          if (
-            adminError ||
-            !isAdmin
-          ) {
+          if (!admin) {
 
             await client()
               .auth
               .signOut();
 
             return;
-
           }
-
 
           state.user =
             data.session.user;
 
-
           await boot();
-
         }
       );
-
   }
-
-
-  function escapeAttr(
-    value = ''
-  ) {
-
-    return String(
-      value
-    ).replace(
-      /[&<>"']/g,
-      char =>
-        ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        }[char])
-    );
-
-  }
-
-
-  function escapeHtml(
-    value = ''
-  ) {
-
-    return escapeAttr(
-      value
-    );
-
-  }
-
 
 })();
