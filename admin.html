@@ -1,9 +1,786 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>GLOVAERA Admin</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"></head><body class="admin-body"><main class="admin-shell"><section id="loginView" class="admin-card"><img src="logo.png" class="admin-logo" alt="GLOVAERA"/><h1>Admin login</h1><p>Manage products, categories and orders without editing code.</p><form id="loginForm"><label>Email<input required type="email" name="email"/></label><label>Password<input required type="password" name="password"/></label><button class="btn btn-primary" type="submit">Sign in</button><div id="loginMsg" class="form-message"></div></form></section>
-<section id="dashboardView" hidden><div class="admin-topbar"><div><span class="eyebrow">GLOVAERA CONTROL CENTRE</span><h1>Admin dashboard</h1></div><div class="admin-actions"><a class="btn btn-secondary" href="index.html">View store</a><button class="btn btn-dark" id="logoutBtn">Sign out</button></div></div><div class="admin-tabs"><button class="tab active" data-tab="overview">Overview</button><button class="tab" data-tab="products">Products</button><button class="tab" data-tab="categories">Categories</button><button class="tab" data-tab="orders">Orders</button></div>
-<div id="tab-overview" class="tab-panel"><div id="statsGrid" class="stats-grid"></div></div>
-<div id="tab-products" class="tab-panel" hidden><div class="admin-section-head"><h2>Products</h2><button class="btn btn-primary" id="addProductBtn">+ Add product</button></div><div id="productAdminList" class="admin-list"></div></div>
-<div id="tab-categories" class="tab-panel" hidden><div class="admin-section-head"><h2>Categories</h2><button class="btn btn-primary" id="addCategoryBtn">+ Add category</button></div><div id="categoryAdminList" class="admin-list"></div></div>
-<div id="tab-orders" class="tab-panel" hidden><div class="admin-section-head"><h2>Orders</h2><button class="btn btn-secondary" id="refreshOrdersBtn">Refresh</button></div><div id="orderAdminList" class="admin-list"></div></div>
-</section></main>
-<div id="modal" class="modal" hidden><div class="modal-card"><button class="modal-close" id="closeModal">×</button><div id="modalContent"></div></div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><script src="admin.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>GLOVAERA Admin</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+
+<body class="admin-body">
+
+  <main class="admin-shell">
+
+    <!-- LOGIN -->
+    <section id="loginView" class="admin-card">
+
+      <img
+        src="logo.png"
+        class="admin-logo"
+        alt="GLOVAERA"
+      />
+
+      <h1>Admin login</h1>
+
+      <p>
+        Manage products, categories, orders and website settings
+        without editing code.
+      </p>
+
+      <form id="loginForm">
+
+        <label>
+          Email
+          <input
+            required
+            type="email"
+            name="email"
+            autocomplete="email"
+          />
+        </label>
+
+        <label>
+          Password
+          <input
+            required
+            type="password"
+            name="password"
+            autocomplete="current-password"
+          />
+        </label>
+
+        <button
+          class="btn btn-primary"
+          type="submit"
+        >
+          Sign in
+        </button>
+
+        <div
+          id="loginMsg"
+          class="form-message"
+        ></div>
+
+      </form>
+
+    </section>
+
+
+    <!-- DASHBOARD -->
+    <section id="dashboardView" hidden>
+
+      <!-- TOPBAR -->
+      <div class="admin-topbar">
+
+        <div>
+
+          <span class="eyebrow">
+            GLOVAERA CONTROL CENTRE
+          </span>
+
+          <h1>
+            Admin dashboard
+          </h1>
+
+        </div>
+
+        <div class="admin-actions">
+
+          <a
+            class="btn btn-secondary"
+            href="index.html"
+          >
+            View store
+          </a>
+
+          <button
+            class="btn btn-dark"
+            id="logoutBtn"
+            type="button"
+          >
+            Sign out
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- TABS -->
+      <div class="admin-tabs">
+
+        <button
+          class="tab active"
+          data-tab="overview"
+          type="button"
+        >
+          Overview
+        </button>
+
+        <button
+          class="tab"
+          data-tab="products"
+          type="button"
+        >
+          Products
+        </button>
+
+        <button
+          class="tab"
+          data-tab="categories"
+          type="button"
+        >
+          Categories
+        </button>
+
+        <button
+          class="tab"
+          data-tab="orders"
+          type="button"
+        >
+          Orders
+        </button>
+
+        <button
+          class="tab"
+          data-tab="editor"
+          type="button"
+        >
+          Site Editor
+        </button>
+
+      </div>
+
+
+      <!-- OVERVIEW -->
+      <div
+        id="tab-overview"
+        class="tab-panel"
+      >
+
+        <div
+          id="statsGrid"
+          class="stats-grid"
+        ></div>
+
+      </div>
+
+
+      <!-- PRODUCTS -->
+      <div
+        id="tab-products"
+        class="tab-panel"
+        hidden
+      >
+
+        <div class="admin-section-head">
+
+          <h2>
+            Products
+          </h2>
+
+          <button
+            class="btn btn-primary"
+            id="addProductBtn"
+            type="button"
+          >
+            + Add product
+          </button>
+
+        </div>
+
+        <div
+          id="productAdminList"
+          class="admin-list"
+        ></div>
+
+      </div>
+
+
+      <!-- CATEGORIES -->
+      <div
+        id="tab-categories"
+        class="tab-panel"
+        hidden
+      >
+
+        <div class="admin-section-head">
+
+          <h2>
+            Categories
+          </h2>
+
+          <button
+            class="btn btn-primary"
+            id="addCategoryBtn"
+            type="button"
+          >
+            + Add category
+          </button>
+
+        </div>
+
+        <div
+          id="categoryAdminList"
+          class="admin-list"
+        ></div>
+
+      </div>
+
+
+      <!-- ORDERS -->
+      <div
+        id="tab-orders"
+        class="tab-panel"
+        hidden
+      >
+
+        <div class="admin-section-head">
+
+          <h2>
+            Orders
+          </h2>
+
+          <button
+            class="btn btn-secondary"
+            id="refreshOrdersBtn"
+            type="button"
+          >
+            Refresh
+          </button>
+
+        </div>
+
+        <div
+          id="orderAdminList"
+          class="admin-list"
+        ></div>
+
+      </div>
+
+
+      <!-- SITE EDITOR -->
+      <div
+        id="tab-editor"
+        class="tab-panel"
+        hidden
+      >
+
+        <div class="editor-intro">
+
+          <span class="eyebrow">
+            WEBSITE CUSTOMIZER
+          </span>
+
+          <h2>
+            Site Editor
+          </h2>
+
+          <p>
+            এখান থেকে coding ছাড়াই GLOVAERA website-এর
+            design, layout এবং homepage gallery পরিবর্তন করতে পারবে।
+          </p>
+
+        </div>
+
+
+        <!-- BRANDING -->
+        <section class="editor-section">
+
+          <div class="editor-section-head">
+
+            <div>
+              <h3>
+                🎨 Brand colours
+              </h3>
+
+              <p>
+                Website-এর মূল colours এখান থেকে পরিবর্তন করো।
+              </p>
+            </div>
+
+          </div>
+
+          <div class="editor-grid">
+
+            <label class="editor-field">
+              <span>
+                Burgundy
+              </span>
+
+              <div class="color-control">
+                <input
+                  type="color"
+                  id="settingBurgundy"
+                />
+
+                <input
+                  type="text"
+                  id="settingBurgundyText"
+                  placeholder="#6D2348"
+                />
+              </div>
+            </label>
+
+
+            <label class="editor-field">
+
+              <span>
+                Dark Burgundy
+              </span>
+
+              <div class="color-control">
+
+                <input
+                  type="color"
+                  id="settingDarkBurgundy"
+                />
+
+                <input
+                  type="text"
+                  id="settingDarkBurgundyText"
+                  placeholder="#4A1730"
+                />
+
+              </div>
+
+            </label>
+
+
+            <label class="editor-field">
+
+              <span>
+                Gold
+              </span>
+
+              <div class="color-control">
+
+                <input
+                  type="color"
+                  id="settingGold"
+                />
+
+                <input
+                  type="text"
+                  id="settingGoldText"
+                  placeholder="#D8B56A"
+                />
+
+              </div>
+
+            </label>
+
+
+            <label class="editor-field">
+
+              <span>
+                Light Gold
+              </span>
+
+              <div class="color-control">
+
+                <input
+                  type="color"
+                  id="settingLightGold"
+                />
+
+                <input
+                  type="text"
+                  id="settingLightGoldText"
+                  placeholder="#E8CC8A"
+                />
+
+              </div>
+
+            </label>
+
+
+            <label class="editor-field">
+
+              <span>
+                Background
+              </span>
+
+              <div class="color-control">
+
+                <input
+                  type="color"
+                  id="settingIvory"
+                />
+
+                <input
+                  type="text"
+                  id="settingIvoryText"
+                  placeholder="#FBF8F2"
+                />
+
+              </div>
+
+            </label>
+
+          </div>
+
+        </section>
+
+
+        <!-- LAYOUT -->
+        <section class="editor-section">
+
+          <div class="editor-section-head">
+
+            <div>
+
+              <h3>
+                📐 Layout
+              </h3>
+
+              <p>
+                Website-এর size ও spacing নিয়ন্ত্রণ করো।
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="editor-grid">
+
+            <label class="editor-field">
+
+              <span>
+                Container width
+              </span>
+
+              <div class="range-control">
+
+                <input
+                  type="range"
+                  min="900"
+                  max="1400"
+                  step="10"
+                  id="settingContainerWidth"
+                />
+
+                <output
+                  id="settingContainerWidthValue"
+                ></output>
+
+              </div>
+
+            </label>
+
+
+            <label class="editor-field">
+
+              <span>
+                Section spacing
+              </span>
+
+              <div class="range-control">
+
+                <input
+                  type="range"
+                  min="40"
+                  max="160"
+                  step="2"
+                  id="settingSectionPadding"
+                />
+
+                <output
+                  id="settingSectionPaddingValue"
+                ></output>
+
+              </div>
+
+            </label>
+
+
+            <label class="editor-field">
+
+              <span>
+                Hero gap
+              </span>
+
+              <div class="range-control">
+
+                <input
+                  type="range"
+                  min="20"
+                  max="120"
+                  step="2"
+                  id="settingHeroGap"
+                />
+
+                <output
+                  id="settingHeroGapValue"
+                ></output>
+
+              </div>
+
+            </label>
+
+          </div>
+
+        </section>
+
+
+        <!-- FOLLOW THE EDIT -->
+        <section class="editor-section">
+
+          <div class="editor-section-head">
+
+            <div>
+
+              <h3>
+                🖼 Follow the edit
+              </h3>
+
+              <p>
+                Homepage-এর এই section-এর ছবি coding ছাড়া পরিবর্তন করো।
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div class="editor-grid">
+
+            <label class="editor-field">
+
+              <span>
+                Small heading
+              </span>
+
+              <input
+                id="socialEyebrowInput"
+                type="text"
+              />
+
+            </label>
+
+
+            <label class="editor-field">
+
+              <span>
+                Main title
+              </span>
+
+              <input
+                id="socialTitleInput"
+                type="text"
+              />
+
+            </label>
+
+
+            <label class="editor-field">
+
+              <span>
+                Image columns
+              </span>
+
+              <select id="socialColumnsInput">
+
+                <option value="2">
+                  2
+                </option>
+
+                <option value="3">
+                  3
+                </option>
+
+                <option value="4">
+                  4
+                </option>
+
+                <option value="5">
+                  5
+                </option>
+
+                <option value="6">
+                  6
+                </option>
+
+              </select>
+
+            </label>
+
+
+            <label class="editor-field">
+
+              <span>
+                Image gap
+              </span>
+
+              <div class="range-control">
+
+                <input
+                  type="range"
+                  min="0"
+                  max="40"
+                  step="1"
+                  id="socialGapInput"
+                />
+
+                <output id="socialGapValue"></output>
+
+              </div>
+
+            </label>
+
+
+            <label class="editor-field">
+
+              <span>
+                Corner radius
+              </span>
+
+              <div class="range-control">
+
+                <input
+                  type="range"
+                  min="0"
+                  max="40"
+                  step="1"
+                  id="socialRadiusInput"
+                />
+
+                <output id="socialRadiusValue"></output>
+
+              </div>
+
+            </label>
+
+
+            <label class="editor-field">
+
+              <span>
+                Image fit
+              </span>
+
+              <select id="socialFitInput">
+
+                <option value="cover">
+                  Cover
+                </option>
+
+                <option value="contain">
+                  Contain
+                </option>
+
+                <option value="fill">
+                  Fill
+                </option>
+
+              </select>
+
+            </label>
+
+          </div>
+
+
+          <!-- IMAGE LIST -->
+          <div class="editor-media-list">
+
+            <div class="editor-media-head">
+
+              <strong>
+                Homepage images
+              </strong>
+
+              <button
+                type="button"
+                class="btn btn-primary small"
+                id="addGalleryImageBtn"
+              >
+                + Add image
+              </button>
+
+            </div>
+
+            <div
+              id="galleryEditorList"
+              class="gallery-editor-list"
+            ></div>
+
+          </div>
+
+        </section>
+
+
+        <!-- SAVE -->
+        <div class="editor-save-bar">
+
+          <div>
+
+            <strong>
+              Ready to publish?
+            </strong>
+
+            <span>
+              Save করলে website-এ settings apply হবে।
+            </span>
+
+          </div>
+
+          <button
+            class="btn btn-primary"
+            id="saveSiteSettingsBtn"
+            type="button"
+          >
+            Save website settings
+          </button>
+
+        </div>
+
+        <div
+          id="editorMessage"
+          class="form-message"
+        ></div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- MODAL -->
+  <div
+    id="modal"
+    class="modal"
+    hidden
+  >
+
+    <div class="modal-card">
+
+      <button
+        class="modal-close"
+        id="closeModal"
+        type="button"
+      >
+        ×
+      </button>
+
+      <div id="modalContent"></div>
+
+    </div>
+
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="admin.js"></script>
+
+</body>
+</html>
