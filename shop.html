@@ -1,4 +1,462 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Shop — GLOVAERA</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"></head>
-<body><div class="announcement">✦ COD Available · A New Era of Elegance</div><header class="site-header"><a class="brand" href="index.html"><img src="logo.png" alt="GLOVAERA"/></a><nav class="desktop-nav"><a href="index.html">Home</a><a class="active" href="shop.html">Shop</a><a href="shop.html?sort=new">New Arrivals</a><a href="shop.html?featured=true">Best Sellers</a><a href="shop.html?combo=true">Combos</a><a href="index.html#about">About</a></nav><div class="header-actions"><button class="icon-btn" id="searchBtn" aria-label="Search">⌕</button><a class="icon-btn" href="shop.html?view=wishlist">♡</a><a class="cart-link" href="cart.html">Cart <span id="cartCount" class="count-pill">0</span></a><button class="menu-btn" id="menuBtn">☰</button></div></header><div id="mobileNav" class="mobile-nav" hidden><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="shop.html?sort=new">New Arrivals</a><a href="shop.html?featured=true">Best Sellers</a><a href="shop.html?combo=true">Combos</a><a href="index.html#about">About</a></div>
-<main><section class="page-hero container"><span class="eyebrow">CURATED COLLECTION</span><h1>Shop GLOVAERA</h1><p>Find something beautiful for every day.</p></section><section class="section container"><div class="toolbar"><div class="search-box"><input id="shopSearch" placeholder="Search jewellery..."/><button id="shopSearchBtn">Search</button></div><div class="toolbar-actions"><select id="categoryFilter"><option value="">All categories</option></select><select id="sortFilter"><option value="featured">Featured</option><option value="new">Newest</option><option value="price-asc">Price: low to high</option><option value="price-desc">Price: high to low</option></select></div></div><div id="shopGrid" class="product-grid"></div><div id="shopEmpty" class="empty-state" hidden>No products found.</div></section></main><footer class="site-footer"><div class="container footer-bottom">© 2026 GLOVAERA · A New Era of Elegance</div></footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><script src="shop.js"></script></body></html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Shop — GLOVAERA
+  </title>
+
+  <meta
+    name="description"
+    content="Shop GLOVAERA jewellery and accessories."
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
+
+</head>
+
+<body>
+
+  <div class="announcement">
+    ✦ COD Available · A New Era of Elegance
+  </div>
+
+
+  <header class="site-header">
+
+    <a
+      class="brand"
+      href="index.html"
+    >
+
+      <img
+        src="logo.png"
+        alt="GLOVAERA"
+        onerror="this.style.display='none'"
+      >
+
+      <span class="brand-fallback">
+        GLO<span>✦</span>VAERA
+      </span>
+
+    </a>
+
+
+    <nav
+      class="desktop-nav"
+      aria-label="Main navigation"
+    >
+
+      <a href="index.html">
+        Home
+      </a>
+
+      <a
+        class="active"
+        href="shop.html"
+      >
+        Shop
+      </a>
+
+      <a href="shop.html?sort=new">
+        New Arrivals
+      </a>
+
+      <a href="shop.html?featured=true">
+        Best Sellers
+      </a>
+
+      <a href="shop.html?combo=true">
+        Combos
+      </a>
+
+      <a href="index.html#about">
+        About
+      </a>
+
+    </nav>
+
+
+    <div class="header-actions">
+
+      <button
+        id="searchTopBtn"
+        class="icon-btn"
+        type="button"
+        aria-label="Search"
+      >
+        ⌕
+      </button>
+
+      <a
+        class="icon-btn"
+        href="shop.html?view=wishlist"
+        aria-label="Wishlist"
+      >
+        ♡
+      </a>
+
+      <a
+        class="cart-link"
+        href="cart.html"
+      >
+        Cart
+
+        <span
+          id="cartCount"
+          class="count-pill"
+        >
+          0
+        </span>
+
+      </a>
+
+      <button
+        id="menuBtn"
+        class="menu-btn"
+        type="button"
+      >
+        ☰
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <div
+    id="mobileNav"
+    class="mobile-nav"
+    hidden
+  >
+
+    <a href="index.html">
+      Home
+    </a>
+
+    <a href="shop.html">
+      Shop
+    </a>
+
+    <a href="shop.html?sort=new">
+      New Arrivals
+    </a>
+
+    <a href="shop.html?featured=true">
+      Best Sellers
+    </a>
+
+    <a href="shop.html?combo=true">
+      Combos
+    </a>
+
+    <a href="index.html#about">
+      About
+    </a>
+
+  </div>
+
+
+  <main>
+
+    <section class="shop-hero">
+
+      <div class="container">
+
+        <span class="eyebrow">
+          CURATED COLLECTION
+        </span>
+
+        <h1>
+          Shop GLOVAERA
+        </h1>
+
+        <p>
+          Discover jewellery and accessories
+          selected for everyday elegance.
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <section
+      class="shop-controls-section"
+    >
+
+      <div class="container">
+
+
+        <div class="shop-toolbar">
+
+          <!-- SEARCH -->
+          <div
+            class="shop-search"
+          >
+
+            <span class="shop-search-icon">
+              ⌕
+            </span>
+
+            <input
+              id="shopSearch"
+              type="search"
+              autocomplete="off"
+              placeholder="Search jewellery..."
+            >
+
+            <button
+              id="clearSearch"
+              class="clear-search"
+              type="button"
+              aria-label="Clear search"
+              hidden
+            >
+              ×
+            </button>
+
+          </div>
+
+
+          <!-- FILTERS -->
+          <div
+            class="shop-filters"
+          >
+
+            <div
+              id="categoryChips"
+              class="category-chips"
+            ></div>
+
+
+            <label
+              class="filter-select"
+            >
+
+              <span>
+                Sort
+              </span>
+
+              <select
+                id="sortFilter"
+              >
+
+                <option value="featured">
+                  Featured
+                </option>
+
+                <option value="new">
+                  Newest
+                </option>
+
+                <option value="price-asc">
+                  Price: Low → High
+                </option>
+
+                <option value="price-desc">
+                  Price: High → Low
+                </option>
+
+              </select>
+
+            </label>
+
+          </div>
+
+
+          <div
+            class="shop-result-bar"
+          >
+
+            <span
+              id="resultCount"
+            >
+              Showing products
+            </span>
+
+            <button
+              id="clearFilters"
+              class="clear-filters"
+              type="button"
+              hidden
+            >
+              Clear filters
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div
+          id="shopGrid"
+          class="product-grid shop-product-grid"
+        ></div>
+
+
+        <div
+          id="shopEmpty"
+          class="empty-shop"
+          hidden
+        >
+
+          <div class="empty-shop-icon">
+            ✦
+          </div>
+
+          <h2>
+            Nothing found
+          </h2>
+
+          <p>
+            Try another search or category.
+          </p>
+
+          <button
+            id="emptyReset"
+            class="btn btn-primary"
+            type="button"
+          >
+            View all products
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer">
+
+    <div
+      class="container footer-grid"
+    >
+
+      <div>
+
+        <a
+          href="index.html"
+          class="footer-brand"
+        >
+
+          <img
+            src="logo.png"
+            alt="GLOVAERA"
+          >
+
+        </a>
+
+        <p>
+          A New Era of Elegance.
+        </p>
+
+      </div>
+
+
+      <div>
+
+        <h4>
+          Shop
+        </h4>
+
+        <a href="shop.html">
+          All products
+        </a>
+
+        <a href="shop.html?sort=new">
+          New arrivals
+        </a>
+
+        <a href="shop.html?featured=true">
+          Best sellers
+        </a>
+
+      </div>
+
+
+      <div>
+
+        <h4>
+          Help
+        </h4>
+
+        <a href="faq.html">
+          FAQ
+        </a>
+
+        <a href="shipping.html">
+          Shipping
+        </a>
+
+        <a href="returns.html">
+          Returns
+        </a>
+
+      </div>
+
+
+      <div>
+
+        <h4>
+          Manage
+        </h4>
+
+        <a href="admin.html">
+          Admin
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="container footer-bottom"
+    >
+      © 2026 GLOVAERA. All rights reserved.
+    </div>
+
+  </footer>
+
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="shop.js"></script>
+
+</body>
+</html>
