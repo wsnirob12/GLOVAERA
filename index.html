@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GLOVAERA — A New Era of Elegance</title>
+  <meta name="description" content="GLOVAERA — elegant, affordable jewellery and accessories for everyday style." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="announcement">✦ COD Available · A New Era of Elegance</div>
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <img src="logo.png" alt="GLOVAERA" />
+    </a>
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+      <a href="shop.html?sort=new">New Arrivals</a>
+      <a href="shop.html?featured=true">Best Sellers</a>
+      <a href="shop.html?combo=true">Combos</a>
+      <a href="#about">About</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" id="searchBtn" aria-label="Search">⌕</button>
+      <a class="icon-btn" href="shop.html?view=wishlist" aria-label="Wishlist">♡</a>
+      <a class="cart-link" href="cart.html">Cart <span id="cartCount" class="count-pill">0</span></a>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu">☰</button>
+    </div>
+  </header>
+
+  <div id="mobileNav" class="mobile-nav" hidden>
+    <a href="index.html">Home</a>
+    <a href="shop.html">Shop</a>
+    <a href="shop.html?sort=new">New Arrivals</a>
+    <a href="shop.html?featured=true">Best Sellers</a>
+    <a href="shop.html?combo=true">Combos</a>
+    <a href="#about">About</a>
+  </div>
+
+  <main>
+    <section class="hero container">
+      <div class="hero-copy">
+        <span class="eyebrow">A NEW ERA OF ELEGANCE</span>
+        <h1>Everyday elegance, effortlessly yours.</h1>
+        <p>Thoughtfully selected jewellery and accessories made to add a little glow to every day — without the luxury price tag.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="shop.html">Shop Collection</a>
+          <a class="btn btn-secondary" href="shop.html?combo=true">Explore Combos</a>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="hero-frame">
+          <img id="heroImage" src="logo.png" alt="GLOVAERA jewellery" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">CURATED FOR YOU</span>
+          <h2>Shop by category</h2>
+        </div>
+        <a href="shop.html" class="text-link">View all →</a>
+      </div>
+      <div id="categoryGrid" class="category-grid"></div>
+    </section>
+
+    <section class="section section-tinted">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">JUST IN</span>
+            <h2>New arrivals</h2>
+          </div>
+          <a href="shop.html?sort=new" class="text-link">View all →</a>
+        </div>
+        <div id="newProducts" class="product-grid"></div>
+      </div>
+    </section>
+
+    <section class="section container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">LOVED BY HER</span>
+          <h2>Best sellers</h2>
+        </div>
+        <a href="shop.html?featured=true" class="text-link">View all →</a>
+      </div>
+      <div id="bestProducts" class="product-grid"></div>
+    </section>
+
+    <section class="section burgundy-section">
+      <div class="container edit-grid">
+        <div>
+          <span class="eyebrow gold-eyebrow">THE GLOVAERA EDIT</span>
+          <h2>More beauty. Better value.</h2>
+          <p>Discover easy-to-style combo sets designed for everyday wear, gifting and tiny moments worth celebrating.</p>
+          <a class="btn btn-light" href="shop.html?combo=true">Shop combos</a>
+        </div>
+        <div class="combo-card">
+          <span>FEATURED COMBO</span>
+          <h3>Soft Glow Set</h3>
+          <p>Earrings + Ring + Hijab Pin</p>
+          <strong>৳349</strong>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section container">
+      <div class="story-grid">
+        <div>
+          <span class="eyebrow">WHY GLOVAERA</span>
+          <h2>Affordable luxury, made for everyday life.</h2>
+        </div>
+        <div class="story-copy">
+          <p>We believe elegance should feel beautiful, wearable and accessible. GLOVAERA curates modern jewellery and accessories for students, young women and anyone who loves a refined everyday look.</p>
+          <div class="feature-row">
+            <div><strong>01</strong><span>Elegant</span></div>
+            <div><strong>02</strong><span>Accessible</span></div>
+            <div><strong>03</strong><span>Everyday</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-soft">
+      <div class="container">
+        <div class="section-head centered">
+          <div>
+            <span class="eyebrow">STAY IN THE GLOVAERA MOOD</span>
+            <h2>Follow the edit</h2>
+          </div>
+        </div>
+        <div class="social-grid">
+          <img src="logo.png" alt="GLOVAERA visual" /><img src="logo.png" alt="GLOVAERA visual" /><img src="logo.png" alt="GLOVAERA visual" /><img src="logo.png" alt="GLOVAERA visual" /><img src="logo.png" alt="GLOVAERA visual" /><img src="logo.png" alt="GLOVAERA visual" />
+        </div>
+      </div>
+    </section>
+
+    <section class="section container">
+      <div class="section-head centered"><div><span class="eyebrow">YOU ASKED, WE ANSWER</span><h2>Frequently asked questions</h2></div></div>
+      <div class="faq-list">
+        <details><summary>How can I place an order?</summary><p>Add your favourite products to cart and complete the checkout form. Cash on Delivery is supported in the first release.</p></details>
+        <details><summary>How much is delivery?</summary><p>Delivery charges can be configured from the admin settings when you connect the store backend.</p></details>
+        <details><summary>Can I request an exchange?</summary><p>Yes, according to your published exchange policy. You can edit your policy page before launch.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div><img src="logo.png" alt="GLOVAERA" class="footer-logo" /><p>A New Era of Elegance.</p></div>
+      <div><h4>Shop</h4><a href="shop.html">All products</a><a href="shop.html?sort=new">New arrivals</a><a href="shop.html?featured=true">Best sellers</a></div>
+      <div><h4>Help</h4><a href="faq.html">FAQ</a><a href="shipping.html">Shipping</a><a href="returns.html">Returns</a><a href="contact.html">Contact</a></div>
+      <div><h4>Manage</h4><a href="admin.html">Admin login</a></div>
+    </div>
+    <div class="container footer-bottom">© 2026 GLOVAERA. All rights reserved.</div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
