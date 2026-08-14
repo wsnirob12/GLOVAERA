@@ -1,9 +1,9 @@
 // GLOVAERA configuration
-// Replace these values with your Supabase project's URL and anon/public key.
-// Never put your Supabase service_role key in this file or in frontend code.
+// Never put your Supabase service_role or secret key in this file or in frontend code.
 window.GLOVAERA_CONFIG = {
-  supabaseUrl: 'YOUR_SUPABASE_URL',
-  supabaseAnonKey: 'YOUR_SUPABASE_ANON_KEY',
+  supabaseUrl: 'https://pabyiyggcwkpekjymhtx.supabase.co',
+  supabaseAnonKey: 'sb_publishable_UXW0Rgop5YeKd4jpXI7YKw_rvyUZEhs',
   currency: '৳',
-  deliveryCharge: 70
+  deliveryDhaka: 60,
+  deliveryOutsideDhaka: 120
 };
