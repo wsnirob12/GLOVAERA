@@ -2988,3 +2988,400 @@ summary b{
   }
 
 }
+/* =========================================================
+   CONTACT PAGE — PROFESSIONAL DESIGN
+   ========================================================= */
+
+.contact-hero{
+  padding:
+    78px
+    0
+    48px;
+
+  text-align:center;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fff,
+      #f7efe7
+    );
+
+  border-bottom:
+    1px solid
+    var(--border);
+}
+
+.contact-hero h1{
+  margin:
+    10px
+    0
+    12px;
+
+  font-family:
+    "Playfair Display",
+    Georgia,
+    serif;
+
+  font-size:
+    clamp(
+      40px,
+      5vw,
+      58px
+    );
+
+  color:var(--dark-burgundy);
+}
+
+.contact-hero p{
+  max-width:680px;
+  margin:0 auto;
+
+  color:var(--muted);
+  line-height:1.8;
+}
+
+
+.contact-layout{
+  display:grid;
+
+  grid-template-columns:
+    minmax(
+      0,
+      .9fr
+    )
+    minmax(
+      0,
+      1.1fr
+    );
+
+  gap:60px;
+
+  align-items:start;
+}
+
+
+/* LEFT */
+
+.contact-intro{
+  padding-top:10px;
+}
+
+.contact-intro h2{
+  margin:
+    8px
+    0
+    16px;
+
+  font-size:40px;
+
+  color:var(--dark-burgundy);
+}
+
+.contact-intro > p{
+  max-width:560px;
+
+  color:var(--muted);
+
+  line-height:1.85;
+}
+
+
+.contact-note{
+  margin-top:28px;
+
+  padding:18px 20px;
+
+  border-left:
+    3px solid
+    var(--gold);
+
+  background:#fbf6ef;
+
+  border-radius:
+    0
+    10px
+    10px
+    0;
+}
+
+.contact-note strong{
+  display:block;
+
+  margin-bottom:5px;
+
+  color:var(--dark-burgundy);
+
+  font-size:13px;
+}
+
+.contact-note p{
+  margin:0;
+
+  color:var(--muted);
+
+  font-size:13px;
+
+  line-height:1.7;
+}
+
+
+/* RIGHT CARDS */
+
+.contact-cards{
+  display:grid;
+  gap:14px;
+}
+
+
+.contact-card{
+  display:grid;
+
+  grid-template-columns:
+    52px
+    1fr
+    24px;
+
+  gap:15px;
+
+  align-items:center;
+
+  padding:20px;
+
+  background:#fff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:14px;
+
+  box-shadow:
+    0
+    10px
+    35px
+    rgba(
+      74,
+      23,
+      48,
+      .05
+    );
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    border-color .2s ease;
+}
+
+.contact-card:hover{
+  transform:translateY(-3px);
+
+  border-color:
+    #d9c4cc;
+
+  box-shadow:
+    0
+    16px
+    45px
+    rgba(
+      74,
+      23,
+      48,
+      .09
+    );
+}
+
+
+.contact-card-icon{
+  width:52px;
+  height:52px;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f5e6ed,
+      #f9f0e8
+    );
+
+  color:var(--burgundy);
+
+  font-size:22px;
+  font-weight:800;
+}
+
+
+.contact-card-content{
+  min-width:0;
+}
+
+
+.contact-card-label{
+  display:block;
+
+  margin-bottom:3px;
+
+  color:var(--burgundy);
+
+  font-size:9px;
+  font-weight:800;
+
+  letter-spacing:.14em;
+}
+
+
+.contact-card h3{
+  margin:
+    0
+    0
+    3px;
+
+  color:var(--dark-burgundy);
+
+  font-family:
+    "Playfair Display",
+    Georgia,
+    serif;
+
+  font-size:20px;
+}
+
+
+.contact-card p{
+  margin:0;
+
+  color:var(--muted);
+
+  font-size:13px;
+
+  overflow-wrap:anywhere;
+}
+
+
+.contact-arrow{
+  color:var(--burgundy);
+
+  font-size:20px;
+
+  transition:
+    transform .2s ease;
+}
+
+.contact-card:hover
+.contact-arrow{
+  transform:translateX(4px);
+}
+
+
+/* CTA */
+
+.contact-cta{
+  margin-top:55px;
+
+  padding:
+    32px
+    35px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:25px;
+
+  border-radius:18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--dark-burgundy),
+      var(--burgundy)
+    );
+
+  color:#fff;
+}
+
+
+.contact-cta h2{
+  margin:
+    8px
+    0
+    7px;
+
+  color:#fff;
+
+  font-family:
+    "Playfair Display",
+    Georgia,
+    serif;
+
+  font-size:30px;
+}
+
+.contact-cta p{
+  margin:0;
+
+  color:#eadfe4;
+}
+
+.contact-cta .eyebrow{
+  color:var(--light-gold);
+}
+
+.contact-cta .btn-light{
+  flex:0 0 auto;
+}
+
+
+/* MOBILE */
+
+@media(max-width:760px){
+
+  .contact-layout{
+    grid-template-columns:1fr;
+    gap:35px;
+  }
+
+  .contact-intro h2{
+    font-size:32px;
+  }
+
+  .contact-cta{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .contact-cta .btn{
+    width:100%;
+  }
+
+}
+
+
+@media(max-width:520px){
+
+  .contact-card{
+    grid-template-columns:
+      45px
+      1fr
+      20px;
+
+    padding:16px;
+  }
+
+  .contact-card-icon{
+    width:45px;
+    height:45px;
+    border-radius:12px;
+  }
+
+  .contact-card h3{
+    font-size:17px;
+  }
+
+}
