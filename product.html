@@ -1,1 +1,282 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Product — GLOVAERA</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css"></head><body><div class="announcement">✦ COD Available · A New Era of Elegance</div><header class="site-header"><a class="brand" href="index.html"><img src="logo.png" alt="GLOVAERA"/></a><nav class="desktop-nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="shop.html?sort=new">New Arrivals</a><a href="shop.html?featured=true">Best Sellers</a><a href="shop.html?combo=true">Combos</a><a href="index.html#about">About</a></nav><div class="header-actions"><a class="cart-link" href="cart.html">Cart <span id="cartCount" class="count-pill">0</span></a><button class="menu-btn" id="menuBtn">☰</button></div></header><main><section class="section container"><div id="productRoot" class="product-detail"></div></section></main><footer class="site-footer"><div class="container footer-bottom">© 2026 GLOVAERA</div></footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="app.js"></script><script src="product.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    Product — GLOVAERA
+  </title>
+
+  <meta
+    name="description"
+    content="Discover GLOVAERA jewellery and accessories."
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
+
+</head>
+
+<body>
+
+  <div class="announcement">
+    ✦ COD Available · A New Era of Elegance
+  </div>
+
+
+  <header class="site-header">
+
+    <a
+      class="brand"
+      href="index.html"
+    >
+
+      <img
+        src="logo.png"
+        alt="GLOVAERA"
+      >
+
+    </a>
+
+
+    <nav
+      class="desktop-nav"
+      aria-label="Main navigation"
+    >
+
+      <a href="index.html">
+        Home
+      </a>
+
+      <a href="shop.html">
+        Shop
+      </a>
+
+      <a href="shop.html?sort=new">
+        New Arrivals
+      </a>
+
+      <a href="shop.html?featured=true">
+        Best Sellers
+      </a>
+
+      <a href="shop.html?combo=true">
+        Combos
+      </a>
+
+      <a href="index.html#about">
+        About
+      </a>
+
+    </nav>
+
+
+    <div class="header-actions">
+
+      <a
+        class="cart-link"
+        href="cart.html"
+      >
+
+        Cart
+
+        <span
+          id="cartCount"
+          class="count-pill"
+        >
+          0
+        </span>
+
+      </a>
+
+
+      <button
+        id="menuBtn"
+        class="menu-btn"
+        type="button"
+        aria-label="Menu"
+      >
+        ☰
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <div
+    id="mobileNav"
+    class="mobile-nav"
+    hidden
+  >
+
+    <a href="index.html">
+      Home
+    </a>
+
+    <a href="shop.html">
+      Shop
+    </a>
+
+    <a href="shop.html?sort=new">
+      New Arrivals
+    </a>
+
+    <a href="shop.html?featured=true">
+      Best Sellers
+    </a>
+
+    <a href="shop.html?combo=true">
+      Combos
+    </a>
+
+    <a href="index.html#about">
+      About
+    </a>
+
+  </div>
+
+
+  <main>
+
+    <section class="product-page-section">
+
+      <div class="container">
+
+        <div
+          id="productRoot"
+          class="product-detail"
+        ></div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer">
+
+    <div class="container footer-grid">
+
+      <div>
+
+        <a
+          href="index.html"
+          class="footer-brand"
+        >
+
+          <img
+            src="logo.png"
+            alt="GLOVAERA"
+          >
+
+        </a>
+
+        <p>
+          A New Era of Elegance.
+        </p>
+
+      </div>
+
+
+      <div>
+
+        <h4>
+          Shop
+        </h4>
+
+        <a href="shop.html">
+          All products
+        </a>
+
+        <a href="shop.html?sort=new">
+          New arrivals
+        </a>
+
+        <a href="shop.html?featured=true">
+          Best sellers
+        </a>
+
+      </div>
+
+
+      <div>
+
+        <h4>
+          Help
+        </h4>
+
+        <a href="faq.html">
+          FAQ
+        </a>
+
+        <a href="shipping.html">
+          Shipping
+        </a>
+
+        <a href="returns.html">
+          Returns
+        </a>
+
+      </div>
+
+
+      <div>
+
+        <h4>
+          Manage
+        </h4>
+
+        <a href="admin.html">
+          Admin
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <div class="container footer-bottom">
+      © 2026 GLOVAERA.
+      All rights reserved.
+    </div>
+
+  </footer>
+
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="product.js"></script>
+
+</body>
+</html>
