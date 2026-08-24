@@ -15,17 +15,6 @@
   </title>
 
   <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  >
-
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-    crossorigin
-  >
-
-  <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     rel="stylesheet"
   >
@@ -39,391 +28,356 @@
 
 <body class="admin-body">
 
+<main class="admin-shell">
 
   <!-- LOGIN -->
 
-  <main class="admin-shell">
-
-    <section
-      id="loginView"
-      class="admin-card"
-    >
-
-      <a
-        href="index.html"
-        class="admin-brand-link"
-      >
-
-        <img
-          src="logo.png"
-          class="admin-logo"
-          alt="GLOVAERA"
-        >
-
-      </a>
-
-
-      <span class="eyebrow">
-        GLOVAERA CONTROL CENTRE
-      </span>
-
-
-      <h1>
-        Admin login
-      </h1>
-
-
-      <p>
-        Manage products, categories and
-        orders without editing code.
-      </p>
-
-
-      <form id="loginForm">
-
-        <label>
-
-          Email
-
-          <input
-            required
-            type="email"
-            name="email"
-            autocomplete="email"
-            placeholder="Admin email"
-          >
-
-        </label>
-
-
-        <label>
-
-          Password
-
-          <input
-            required
-            type="password"
-            name="password"
-            autocomplete="current-password"
-            placeholder="Password"
-          >
-
-        </label>
-
-
-        <button
-          class="btn btn-primary"
-          type="submit"
-        >
-          Sign in
-        </button>
-
-
-        <div
-          id="loginMsg"
-          class="form-message"
-        ></div>
-
-      </form>
-
-    </section>
-
-
-    <!-- DASHBOARD -->
-
-    <section
-      id="dashboardView"
-      hidden
-    >
-
-      <div class="admin-topbar">
-
-        <div>
-
-          <span class="eyebrow">
-            GLOVAERA CONTROL CENTRE
-          </span>
-
-          <h1>
-            Admin dashboard
-          </h1>
-
-        </div>
-
-
-        <div class="admin-actions">
-
-          <a
-            class="btn btn-secondary"
-            href="index.html"
-          >
-            View store
-          </a>
-
-
-          <button
-            class="btn btn-dark"
-            id="logoutBtn"
-            type="button"
-          >
-            Sign out
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <!-- TABS -->
-
-      <div class="admin-tabs">
-
-        <button
-          class="tab active"
-          data-tab="overview"
-          type="button"
-        >
-          Overview
-        </button>
-
-
-        <button
-          class="tab"
-          data-tab="products"
-          type="button"
-        >
-          Products
-        </button>
-
-
-        <button
-          class="tab"
-          data-tab="categories"
-          type="button"
-        >
-          Categories
-        </button>
-
-
-        <button
-          class="tab"
-          data-tab="orders"
-          type="button"
-        >
-          Orders
-        </button>
-
-      </div>
-
-
-      <!-- OVERVIEW -->
-
-      <div
-        id="tab-overview"
-        class="tab-panel"
-      >
-
-        <div
-          id="statsGrid"
-          class="stats-grid"
-        ></div>
-
-
-        <div class="admin-welcome-card">
-
-          <span class="eyebrow">
-            GLOVAERA STORE
-          </span>
-
-          <h2>
-            Welcome back.
-          </h2>
-
-          <p>
-            Manage your products, categories
-            and customer orders from here.
-          </p>
-
-        </div>
-
-      </div>
-
-
-      <!-- PRODUCTS -->
-
-      <div
-        id="tab-products"
-        class="tab-panel"
-        hidden
-      >
-
-        <div
-          class="admin-section-head"
-        >
-
-          <div>
-
-            <span class="eyebrow">
-              STORE
-            </span>
-
-            <h2>
-              Products
-            </h2>
-
-          </div>
-
-
-          <button
-            class="btn btn-primary"
-            id="addProductBtn"
-            type="button"
-          >
-            + Add product
-          </button>
-
-        </div>
-
-
-        <div
-          id="productAdminList"
-          class="admin-list"
-        ></div>
-
-      </div>
-
-
-      <!-- CATEGORIES -->
-
-      <div
-        id="tab-categories"
-        class="tab-panel"
-        hidden
-      >
-
-        <div
-          class="admin-section-head"
-        >
-
-          <div>
-
-            <span class="eyebrow">
-              STORE
-            </span>
-
-            <h2>
-              Categories
-            </h2>
-
-          </div>
-
-
-          <button
-            class="btn btn-primary"
-            id="addCategoryBtn"
-            type="button"
-          >
-            + Add category
-          </button>
-
-        </div>
-
-
-        <div
-          id="categoryAdminList"
-          class="admin-list"
-        ></div>
-
-      </div>
-
-
-      <!-- ORDERS -->
-
-      <div
-        id="tab-orders"
-        class="tab-panel"
-        hidden
-      >
-
-        <div
-          class="admin-section-head"
-        >
-
-          <div>
-
-            <span class="eyebrow">
-              SALES
-            </span>
-
-            <h2>
-              Orders
-            </h2>
-
-          </div>
-
-
-          <button
-            class="btn btn-secondary"
-            id="refreshOrdersBtn"
-            type="button"
-          >
-            Refresh
-          </button>
-
-        </div>
-
-
-        <div
-          id="orderAdminList"
-          class="admin-list"
-        ></div>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- MODAL -->
-
-  <div
-    id="modal"
-    class="modal"
-    hidden
+  <section
+    id="loginView"
+    class="admin-card"
   >
 
-    <div class="modal-card">
+    <a
+      href="index.html"
+      class="admin-brand-link"
+    >
+
+      <img
+        src="logo.png"
+        class="admin-logo"
+        alt="GLOVAERA"
+      >
+
+    </a>
+
+
+    <span class="eyebrow">
+      GLOVAERA CONTROL CENTRE
+    </span>
+
+
+    <h1>
+      Admin login
+    </h1>
+
+
+    <p>
+      Manage your store and website
+      without editing code.
+    </p>
+
+
+    <form id="loginForm">
+
+      <label>
+        Email
+
+        <input
+          required
+          type="email"
+          name="email"
+          autocomplete="email"
+        >
+      </label>
+
+
+      <label>
+        Password
+
+        <input
+          required
+          type="password"
+          name="password"
+          autocomplete="current-password"
+        >
+      </label>
+
 
       <button
-        class="modal-close"
-        id="closeModal"
-        type="button"
+        class="btn btn-primary"
+        type="submit"
       >
-        ×
+        Sign in
       </button>
 
 
       <div
-        id="modalContent"
+        id="loginMsg"
+        class="form-message"
       ></div>
+
+    </form>
+
+  </section>
+
+
+  <!-- DASHBOARD -->
+
+  <section
+    id="dashboardView"
+    hidden
+  >
+
+    <div class="admin-topbar">
+
+      <div>
+
+        <span class="eyebrow">
+          GLOVAERA CONTROL CENTRE
+        </span>
+
+        <h1>
+          Admin dashboard
+        </h1>
+
+      </div>
+
+
+      <div class="admin-actions">
+
+        <a
+          class="btn btn-secondary"
+          href="index.html"
+        >
+          View store
+        </a>
+
+        <button
+          class="btn btn-dark"
+          id="logoutBtn"
+          type="button"
+        >
+          Sign out
+        </button>
+
+      </div>
 
     </div>
 
+
+    <div class="admin-tabs">
+
+      <button
+        class="tab active"
+        data-tab="overview"
+        type="button"
+      >
+        Overview
+      </button>
+
+      <button
+        class="tab"
+        data-tab="products"
+        type="button"
+      >
+        Products
+      </button>
+
+      <button
+        class="tab"
+        data-tab="categories"
+        type="button"
+      >
+        Categories
+      </button>
+
+      <button
+        class="tab"
+        data-tab="orders"
+        type="button"
+      >
+        Orders
+      </button>
+
+      <!-- NEW -->
+      <button
+        class="tab"
+        data-tab="website-editor"
+        type="button"
+      >
+        🎨 Website Editor
+      </button>
+
+    </div>
+
+
+    <!-- OVERVIEW -->
+
+    <section
+      id="tab-overview"
+      class="tab-panel"
+    >
+
+      <div
+        id="statsGrid"
+        class="stats-grid"
+      ></div>
+
+    </section>
+
+
+    <!-- PRODUCTS -->
+
+    <section
+      id="tab-products"
+      class="tab-panel"
+      hidden
+    >
+
+      <div
+        class="admin-section-head"
+      >
+
+        <h2>
+          Products
+        </h2>
+
+        <button
+          class="btn btn-primary"
+          id="addProductBtn"
+          type="button"
+        >
+          + Add product
+        </button>
+
+      </div>
+
+
+      <div
+        id="productAdminList"
+        class="admin-list"
+      ></div>
+
+    </section>
+
+
+    <!-- CATEGORIES -->
+
+    <section
+      id="tab-categories"
+      class="tab-panel"
+      hidden
+    >
+
+      <div
+        class="admin-section-head"
+      >
+
+        <h2>
+          Categories
+        </h2>
+
+        <button
+          class="btn btn-primary"
+          id="addCategoryBtn"
+          type="button"
+        >
+          + Add category
+        </button>
+
+      </div>
+
+
+      <div
+        id="categoryAdminList"
+        class="admin-list"
+      ></div>
+
+    </section>
+
+
+    <!-- ORDERS -->
+
+    <section
+      id="tab-orders"
+      class="tab-panel"
+      hidden
+    >
+
+      <div
+        class="admin-section-head"
+      >
+
+        <h2>
+          Orders
+        </h2>
+
+        <button
+          class="btn btn-secondary"
+          id="refreshOrdersBtn"
+          type="button"
+        >
+          Refresh
+        </button>
+
+      </div>
+
+
+      <div
+        id="orderAdminList"
+        class="admin-list"
+      ></div>
+
+    </section>
+
+
+    <!-- WEBSITE EDITOR -->
+
+    <section
+      id="tab-website-editor"
+      class="tab-panel"
+      hidden
+    >
+
+      <div
+        id="websiteEditorRoot"
+      ></div>
+
+    </section>
+
+  </section>
+
+</main>
+
+
+<!-- MODAL -->
+
+<div
+  id="modal"
+  class="modal"
+  hidden
+>
+
+  <div class="modal-card">
+
+    <button
+      class="modal-close"
+      id="closeModal"
+      type="button"
+    >
+      ×
+    </button>
+
+    <div
+      id="modalContent"
+    ></div>
+
   </div>
 
+</div>
 
-  <!-- SCRIPTS -->
 
-  <script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-  ></script>
+<script
+  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
 
-  <script src="config.js"></script>
+<script src="config.js"></script>
 
-  <script src="app.js"></script>
+<script src="app.js"></script>
 
-  <script src="admin.js"></script>
+<script src="admin.js"></script>
+
+<script src="site-editor.js"></script>
 
 </body>
 
