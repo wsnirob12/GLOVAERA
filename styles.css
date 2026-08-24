@@ -3385,3 +3385,88 @@ summary b{
   }
 
 }
+/* =========================================================
+   COMING SOON
+   ========================================================= */
+
+.coming-soon-product-badge{
+  background:#4A1730 !important;
+  color:#fff !important;
+}
+
+.product-status-badge{
+  position:absolute;
+  top:14px;
+  left:14px;
+  z-index:5;
+
+  padding:7px 10px;
+
+  border-radius:6px;
+
+  font-size:10px;
+  font-weight:800;
+
+  letter-spacing:.08em;
+}
+
+.coming-soon-badge{
+  background:#4A1730;
+  color:#fff;
+}
+
+.out-stock-badge{
+  background:#777;
+  color:#fff;
+}
+
+.product-gallery{
+  position:relative;
+}
+
+.coming-soon-message,
+.out-stock-message{
+  padding:17px 18px;
+  border-radius:11px;
+}
+
+.coming-soon-message{
+  background:#f5eaf0;
+  border:1px solid #e4cdd8;
+  color:#4A1730;
+}
+
+.out-stock-message{
+  background:#f3f1f1;
+  border:1px solid #e2dede;
+  color:#555;
+}
+
+.coming-soon-message strong,
+.out-stock-message strong{
+  display:block;
+  margin-bottom:4px;
+}
+
+.coming-soon-message p,
+.out-stock-message p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.coming-soon-label{
+  color:#6D2348;
+  font-weight:800;
+}
+
+.out-of-stock-label{
+  color:#888;
+}
+
+.coming-soon-option{
+  border:1px solid #e4cdd8;
+  background:#fbf1f5;
+  border-radius:8px;
+  padding:9px !important;
+}
