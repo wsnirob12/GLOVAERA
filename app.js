@@ -1,883 +1,376 @@
 (function () {
-  const cfg = window.GLOVAERA_CONFIG || {};
+
+  const cfg =
+    window.GLOVAERA_CONFIG ||
+    {};
+
 
   const hasSupabase =
-    !!(
-      window.supabase &&
-      cfg.supabaseUrl &&
-      cfg.supabaseAnonKey &&
-      !String(cfg.supabaseUrl).startsWith('YOUR_') &&
-      !String(cfg.supabaseAnonKey).startsWith('YOUR_')
+    window.supabase &&
+    cfg.supabaseUrl &&
+    cfg.supabaseAnonKey &&
+    !cfg.supabaseUrl.startsWith(
+      'YOUR_'
     );
 
-  const client = hasSupabase
-    ? window.supabase.createClient(
-        cfg.supabaseUrl,
-        cfg.supabaseAnonKey
-      )
-    : null;
 
-  const defaultSettings = {
-    branding: {
-      burgundy: '#6D2348',
-      darkBurgundy: '#4A1730',
-      gold: '#D8B56A',
-      lightGold: '#E8CC8A',
-      ivory: '#FBF8F2'
-    },
+  window.glovaera = {
 
-    layout: {
-      containerWidth: 1160,
-      sectionPadding: 94,
-      heroGap: 60,
-      categoryGap: 14,
-      categoryImageFit: 'cover',
-      socialGap: 12,
-      socialColumns: 6,
-      socialRadius: 12
-    },
+    client:
+      hasSupabase
+        ? window.supabase.createClient(
+            cfg.supabaseUrl,
+            cfg.supabaseAnonKey
+          )
+        : null,
 
-    announcement: {
-      enabled: true,
-      text: '✦ COD Available · A New Era of Elegance'
-    },
+    cfg,
 
-    hero: {
-      enabled: true,
-      eyebrow: 'A NEW ERA OF ELEGANCE',
-      title: 'Everyday elegance, effortlessly yours.',
-      description:
-        'Thoughtfully selected jewellery and accessories made to add a little glow to every day — without the luxury price tag.',
-      button1Text: 'Shop Collection',
-      button1Link: 'shop.html',
-      button2Text: 'Explore Combos',
-      button2Link: 'shop.html?combo=true',
-      image: 'logo.png',
-      imageFit: 'contain'
-    },
+    hasSupabase
 
-    social: {
-      enabled: true,
-      eyebrow: 'STAY IN THE GLOVAERA MOOD',
-      title: 'Follow the edit',
-      imageFit: 'cover',
-      images: []
-    },
-
-    combo: {
-      enabled: true,
-      eyebrow: 'THE GLOVAERA EDIT',
-      title: 'More beauty. Better value.',
-      description:
-        'Discover easy-to-style combo sets designed for everyday wear, gifting and tiny moments worth celebrating.',
-      buttonText: 'Shop combos',
-      buttonLink: 'shop.html?combo=true',
-      badge: 'FEATURED COMBO',
-      productTitle: 'Soft Glow Set',
-      productDescription: 'Earrings + Ring + Hijab Pin',
-      price: '৳349',
-      image: '',
-      imageFit: 'cover'
-    },
-
-    faq: {
-      enabled: true,
-      eyebrow: 'YOU ASKED, WE ANSWER',
-      title: 'Frequently asked questions',
-      items: [
-        {
-          question: 'How can I place an order?',
-          answer:
-            'Add your favourite products to cart and complete the checkout form. Cash on Delivery is available.'
-        },
-        {
-          question: 'How much is delivery?',
-          answer:
-            'Delivery charges are calculated automatically during checkout based on your district.'
-        },
-        {
-          question: 'Can I request an exchange?',
-          answer:
-            'Yes. Exchanges are handled according to the published GLOVAERA exchange policy.'
-        }
-      ]
-    },
-
-    about: {
-      eyebrow: 'WHY GLOVAERA',
-      title: 'Affordable luxury, made for everyday life.',
-      description:
-        'We believe elegance should feel beautiful, wearable and accessible. GLOVAERA curates modern jewellery and accessories for students, young women and anyone who loves a refined everyday look.',
-      feature1: 'Elegant',
-      feature2: 'Accessible',
-      feature3: 'Everyday'
-    }
   };
 
-  function mergeSettings(source) {
-    const data = source || {};
-
-    return {
-      branding: {
-        ...defaultSettings.branding,
-        ...(data.branding || {})
-      },
-
-      layout: {
-        ...defaultSettings.layout,
-        ...(data.layout || {})
-      },
-
-      announcement: {
-        ...defaultSettings.announcement,
-        ...(data.announcement || {})
-      },
-
-      hero: {
-        ...defaultSettings.hero,
-        ...(data.hero || {})
-      },
-
-      social: {
-        ...defaultSettings.social,
-        ...(data.social || {}),
-        images: Array.isArray(data.social?.images)
-          ? data.social.images
-          : defaultSettings.social.images
-      },
-
-      combo: {
-        ...defaultSettings.combo,
-        ...(data.combo || {})
-      },
-
-      faq: {
-        ...defaultSettings.faq,
-        ...(data.faq || {}),
-        items: Array.isArray(data.faq?.items)
-          ? data.faq.items
-          : defaultSettings.faq.items
-      },
-
-      about: {
-        ...defaultSettings.about,
-        ...(data.about || {})
-      }
-    };
-  }
-
-  function escapeHtml(value = '') {
-    return String(value).replace(
-      /[&<>'"]/g,
-      (char) =>
-        ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          "'": '&#39;',
-          '"': '&quot;'
-        }[char])
-    );
-  }
-
-  async function loadSiteSettings() {
-    if (!client) {
-      window.GLOVAERA.settings =
-        mergeSettings(defaultSettings);
-
-      applySiteSettings();
-      return;
-    }
-
-    const { data, error } = await client
-      .from('site_settings')
-      .select('settings')
-      .eq('id', 'global')
-      .maybeSingle();
-
-    if (error) {
-      console.warn(
-        'Could not load site settings:',
-        error
-      );
-
-      window.GLOVAERA.settings =
-        mergeSettings(defaultSettings);
-    } else {
-      window.GLOVAERA.settings =
-        mergeSettings(data?.settings);
-    }
-
-    applySiteSettings();
-  }
-
-  function applySiteSettings() {
-    const settings =
-      window.GLOVAERA.settings ||
-      defaultSettings;
-
-    const root =
-      document.documentElement;
-
-    root.style.setProperty(
-      '--burgundy',
-      settings.branding.burgundy
-    );
-
-    root.style.setProperty(
-      '--dark-burgundy',
-      settings.branding.darkBurgundy
-    );
-
-    root.style.setProperty(
-      '--gold',
-      settings.branding.gold
-    );
-
-    root.style.setProperty(
-      '--light-gold',
-      settings.branding.lightGold
-    );
-
-    root.style.setProperty(
-      '--ivory',
-      settings.branding.ivory
-    );
-
-    root.style.setProperty(
-      '--container-width',
-      `${Number(
-        settings.layout.containerWidth
-      ) || 1160}px`
-    );
-
-    root.style.setProperty(
-      '--section-padding',
-      `${Number(
-        settings.layout.sectionPadding
-      ) || 94}px`
-    );
-
-    root.style.setProperty(
-      '--hero-gap',
-      `${Number(
-        settings.layout.heroGap
-      ) || 60}px`
-    );
-
-    root.style.setProperty(
-      '--category-gap',
-      `${Number(
-        settings.layout.categoryGap
-      ) || 14}px`
-    );
-
-    root.style.setProperty(
-      '--social-gap',
-      `${Number(
-        settings.layout.socialGap
-      ) || 12}px`
-    );
-
-    root.style.setProperty(
-      '--social-columns',
-      `${Number(
-        settings.layout.socialColumns
-      ) || 6}`
-    );
-
-    root.style.setProperty(
-      '--social-radius',
-      `${Number(
-        settings.layout.socialRadius
-      ) || 0}px`
-    );
-
-    renderAnnouncement();
-    renderHero();
-    renderSocialGallery();
-    renderCombo();
-    renderFaq();
-    renderAbout();
-  }
-
-  function renderAnnouncement() {
-    const bar =
-      document.getElementById(
-        'announcementBar'
-      );
-
-    if (!bar) return;
-
-    const announcement =
-      window.GLOVAERA.settings.announcement;
-
-    bar.hidden =
-      announcement.enabled === false;
-
-    bar.textContent =
-      announcement.text || '';
-  }
-
-  function renderHero() {
-    const section =
-      document.getElementById(
-        'heroSection'
-      );
-
-    if (!section) return;
-
-    const hero =
-      window.GLOVAERA.settings.hero;
-
-    section.hidden =
-      hero.enabled === false;
-
-    const eyebrow =
-      document.getElementById(
-        'heroEyebrow'
-      );
-
-    const title =
-      document.getElementById(
-        'heroTitle'
-      );
-
-    const description =
-      document.getElementById(
-        'heroDescription'
-      );
-
-    const button1 =
-      document.getElementById(
-        'heroButton1'
-      );
-
-    const button2 =
-      document.getElementById(
-        'heroButton2'
-      );
-
-    const image =
-      document.getElementById(
-        'heroImage'
-      );
-
-    if (eyebrow) {
-      eyebrow.textContent =
-        hero.eyebrow;
-    }
-
-    if (title) {
-      title.textContent =
-        hero.title;
-    }
-
-    if (description) {
-      description.textContent =
-        hero.description;
-    }
-
-    if (button1) {
-      button1.textContent =
-        hero.button1Text;
-      button1.href =
-        hero.button1Link;
-    }
-
-    if (button2) {
-      button2.textContent =
-        hero.button2Text;
-      button2.href =
-        hero.button2Link;
-    }
-
-    if (image) {
-      image.src =
-        hero.image || 'logo.png';
-
-      image.style.objectFit =
-        hero.imageFit || 'contain';
-    }
-  }
-
-  function renderSocialGallery() {
-    const section =
-      document.getElementById(
-        'socialSection'
-      );
-
-    const gallery =
-      document.getElementById(
-        'socialGallery'
-      );
-
-    if (!section || !gallery) return;
-
-    const social =
-      window.GLOVAERA.settings.social;
-
-    const images =
-      Array.isArray(social.images)
-        ? social.images.filter(Boolean)
-        : [];
-
-    section.hidden =
-      social.enabled === false ||
-      images.length === 0;
-
-    const eyebrow =
-      document.getElementById(
-        'socialEyebrow'
-      );
-
-    const title =
-      document.getElementById(
-        'socialTitle'
-      );
-
-    if (eyebrow) {
-      eyebrow.textContent =
-        social.eyebrow;
-    }
-
-    if (title) {
-      title.textContent =
-        social.title;
-    }
-
-    gallery.innerHTML =
-      images
-        .map(
-          (url, index) => `
-            <div class="social-gallery-item">
-              <img
-                src="${escapeHtml(url)}"
-                alt="GLOVAERA edit ${
-                  index + 1
-                }"
-                style="object-fit:${escapeHtml(
-                  social.imageFit || 'cover'
-                )};"
-              >
-            </div>
-          `
-        )
-        .join('');
-  }
-
-  function renderCombo() {
-    const section =
-      document.getElementById(
-        'comboSection'
-      );
-
-    if (!section) return;
-
-    const combo =
-      window.GLOVAERA.settings.combo;
-
-    section.hidden =
-      combo.enabled === false;
-
-    const eyebrow =
-      document.getElementById(
-        'comboEyebrow'
-      );
-
-    const title =
-      document.getElementById(
-        'comboTitle'
-      );
-
-    const description =
-      document.getElementById(
-        'comboDescription'
-      );
-
-    const button =
-      document.getElementById(
-        'comboButton'
-      );
-
-    const badge =
-      document.getElementById(
-        'comboBadge'
-      );
-
-    const productTitle =
-      document.getElementById(
-        'comboProductTitle'
-      );
-
-    const productDescription =
-      document.getElementById(
-        'comboProductDescription'
-      );
-
-    const price =
-      document.getElementById(
-        'comboPrice'
-      );
-
-    const imageWrap =
-      document.getElementById(
-        'comboImageWrap'
-      );
-
-    const image =
-      document.getElementById(
-        'comboImage'
-      );
-
-    if (eyebrow) {
-      eyebrow.textContent =
-        combo.eyebrow;
-    }
-
-    if (title) {
-      title.textContent =
-        combo.title;
-    }
-
-    if (description) {
-      description.textContent =
-        combo.description;
-    }
-
-    if (button) {
-      button.textContent =
-        combo.buttonText;
-      button.href =
-        combo.buttonLink;
-    }
-
-    if (badge) {
-      badge.textContent =
-        combo.badge;
-    }
-
-    if (productTitle) {
-      productTitle.textContent =
-        combo.productTitle;
-    }
-
-    if (productDescription) {
-      productDescription.textContent =
-        combo.productDescription;
-    }
-
-    if (price) {
-      price.textContent =
-        combo.price;
-    }
-
-    if (image && imageWrap) {
-      if (combo.image) {
-        image.src =
-          combo.image;
-
-        image.style.objectFit =
-          combo.imageFit || 'cover';
-
-        imageWrap.hidden = false;
-      } else {
-        imageWrap.hidden = true;
-      }
-    }
-  }
-
-  function renderFaq() {
-    const section =
-      document.getElementById(
-        'faqSection'
-      );
-
-    const list =
-      document.getElementById(
-        'faqList'
-      );
-
-    if (!section || !list) return;
-
-    const faq =
-      window.GLOVAERA.settings.faq;
-
-    section.hidden =
-      faq.enabled === false;
-
-    const eyebrow =
-      document.getElementById(
-        'faqEyebrow'
-      );
-
-    const title =
-      document.getElementById(
-        'faqTitle'
-      );
-
-    if (eyebrow) {
-      eyebrow.textContent =
-        faq.eyebrow;
-    }
-
-    if (title) {
-      title.textContent =
-        faq.title;
-    }
-
-    list.innerHTML =
-      (faq.items || [])
-        .map(
-          (item, index) => `
-            <details ${
-              index === 0
-                ? 'open'
-                : ''
-            }>
-
-              <summary>
-                <span>
-                  ${escapeHtml(
-                    item.question || ''
-                  )}
-                </span>
-
-                <b>+</b>
-              </summary>
-
-              <div class="faq-answer">
-                ${escapeHtml(
-                  item.answer || ''
-                )}
-              </div>
-
-            </details>
-          `
-        )
-        .join('');
-  }
-
-  function renderAbout() {
-    const about =
-      window.GLOVAERA.settings.about;
-
-    const eyebrow =
-      document.getElementById(
-        'aboutEyebrow'
-      );
-
-    const title =
-      document.getElementById(
-        'aboutTitle'
-      );
-
-    const description =
-      document.getElementById(
-        'aboutDescription'
-      );
-
-    const f1 =
-      document.getElementById(
-        'aboutFeature1'
-      );
-
-    const f2 =
-      document.getElementById(
-        'aboutFeature2'
-      );
-
-    const f3 =
-      document.getElementById(
-        'aboutFeature3'
-      );
-
-    if (eyebrow) {
-      eyebrow.textContent =
-        about.eyebrow;
-    }
-
-    if (title) {
-      title.textContent =
-        about.title;
-    }
-
-    if (description) {
-      description.textContent =
-        about.description;
-    }
-
-    if (f1) {
-      f1.textContent =
-        about.feature1;
-    }
-
-    if (f2) {
-      f2.textContent =
-        about.feature2;
-    }
-
-    if (f3) {
-      f3.textContent =
-        about.feature3;
-    }
-  }
 
   const demoProducts = [
+
     {
-      id: 'demo-1',
-      name: 'Pearl Drop Earrings',
-      category: 'Earrings',
-      price: 180,
-      sale_price: 150,
-      stock: 12,
-      featured: true,
-      is_new: true,
-      combo: false,
-      image_url: 'logo.png',
+      id:'demo-1',
+      name:'Pearl Drop Earrings',
+      category:'Earrings',
+      price:180,
+      sale_price:150,
+      stock:12,
+      featured:true,
+      is_new:true,
+      combo:false,
+      coming_soon:false,
+      image_url:'logo.png',
       description:
-        'Delicate pearl-inspired earrings for everyday styling.'
+        'Delicate pearl-inspired earrings for everyday styling.',
+      material:
+        'Alloy + imitation pearl',
+      color:
+        'Gold'
+    },
+
+    {
+      id:'demo-2',
+      name:'Luna Jhumka',
+      category:'Jhumka',
+      price:240,
+      sale_price:199,
+      stock:8,
+      featured:true,
+      is_new:true,
+      combo:false,
+      coming_soon:false,
+      image_url:'logo.png',
+      description:
+        'Classic jhumka silhouette with a modern finish.',
+      material:
+        'Alloy',
+      color:
+        'Antique Gold'
+    },
+
+    {
+      id:'demo-3',
+      name:'Everyday Minimal Ring',
+      category:'Rings',
+      price:150,
+      sale_price:120,
+      stock:20,
+      featured:false,
+      is_new:true,
+      combo:false,
+      coming_soon:false,
+      image_url:'logo.png',
+      description:
+        'A simple stack-friendly ring for everyday looks.',
+      material:
+        'Alloy',
+      color:
+        'Gold'
+    },
+
+    {
+      id:'demo-4',
+      name:'Soft Glow Set',
+      category:'Combos',
+      price:420,
+      sale_price:349,
+      stock:6,
+      featured:true,
+      is_new:false,
+      combo:true,
+      coming_soon:false,
+      image_url:'logo.png',
+      description:
+        'Earrings + ring + hijab pin in one easy set.',
+      material:
+        'Mixed fashion jewellery',
+      color:
+        'Gold'
     }
+
   ];
+
 
   const demoCategories = [
+
     {
-      id: 'demo-cat-1',
-      name: 'Earrings',
-      slug: 'earrings',
-      image_url: ''
+      id:'c1',
+      name:'Earrings',
+      slug:'earrings',
+      image_url:'logo.png'
+    },
+
+    {
+      id:'c2',
+      name:'Jhumka',
+      slug:'jhumka',
+      image_url:'logo.png'
+    },
+
+    {
+      id:'c3',
+      name:'Rings',
+      slug:'rings',
+      image_url:'logo.png'
+    },
+
+    {
+      id:'c4',
+      name:'Necklaces',
+      slug:'necklaces',
+      image_url:'logo.png'
+    },
+
+    {
+      id:'c5',
+      name:'Hijab Pins',
+      slug:'hijab-pins',
+      image_url:'logo.png'
+    },
+
+    {
+      id:'c6',
+      name:'Combos',
+      slug:'combos',
+      image_url:'logo.png'
     }
+
   ];
 
-  async function getProducts() {
-    if (!client) {
+
+  async function getProducts(){
+
+    if(
+      !window.glovaera.client
+    ){
+
       return demoProducts;
+
     }
 
-    const { data, error } =
-      await client
-        .from('products')
-        .select('*')
-        .eq('active', true)
-        .order('created_at', {
-          ascending: false
-        });
 
-    if (error) {
+    const {
+      data,
+      error
+    } =
+      await window.glovaera.client
+        .from(
+          'products'
+        )
+        .select('*')
+        .eq(
+          'active',
+          true
+        )
+        .order(
+          'created_at',
+          {
+            ascending:false
+          }
+        );
+
+
+    if(error){
+
       console.warn(
-        'Products:',
         error
       );
 
       return demoProducts;
+
     }
+
 
     return data || [];
+
   }
 
-  async function getCategories() {
-    if (!client) {
+
+  async function getCategories(){
+
+    if(
+      !window.glovaera.client
+    ){
+
       return demoCategories;
+
     }
 
-    const { data, error } =
-      await client
-        .from('categories')
-        .select('*')
-        .order('name');
 
-    if (error) {
+    const {
+      data,
+      error
+    } =
+      await window.glovaera.client
+        .from(
+          'categories'
+        )
+        .select('*')
+        .order(
+          'name'
+        );
+
+
+    if(error){
+
       console.warn(
-        'Categories:',
         error
       );
 
       return demoCategories;
+
     }
 
+
     return data || [];
+
   }
 
-  function money(value) {
+
+  function money(
+    v
+  ){
+
     return `${
-      cfg.currency || '৳'
-    }${Number(
-      value || 0
-    ).toLocaleString('en-BD')}`;
+      cfg.currency ||
+      '৳'
+    }${
+      Number(
+        v || 0
+      ).toLocaleString(
+        'en-BD'
+      )
+    }`;
+
   }
 
-  function cart() {
-    try {
+
+  function cart(){
+
+    try{
+
       return JSON.parse(
         localStorage.getItem(
           'glovaera_cart'
-        ) || '[]'
+        ) ||
+        '[]'
       );
-    } catch {
+
+    }catch{
+
       return [];
+
     }
+
   }
 
-  function saveCart(items) {
+
+  function saveCart(
+    items
+  ){
+
     localStorage.setItem(
       'glovaera_cart',
-      JSON.stringify(items)
+      JSON.stringify(
+        items
+      )
     );
 
+
     updateCartCount();
+
   }
+
 
   function addToCart(
     product,
-    qty = 1
-  ) {
-    const stock =
-      Number(
-        product.stock ?? 0
-      );
+    qty=1
+  ){
 
-    if (stock <= 0) {
-      alert(
-        'This product is currently out of stock.'
-      );
+    /* Coming Soon cannot be added */
+
+    if(
+      product.coming_soon
+    ){
 
       return false;
+
     }
 
-    const items = cart();
+
+    const items =
+      cart();
+
 
     const found =
       items.find(
-        (item) =>
-          item.id === product.id
+        x =>
+          x.id ===
+          product.id
       );
 
-    if (found) {
-      found.qty =
-        Math.min(
-          found.qty +
-            Number(qty || 1),
-          stock
-        );
-    } else {
+
+    if(found){
+
+      found.qty +=
+        qty;
+
+    }else{
+
       items.push({
-        id: product.id,
-        name: product.name,
-        price: Number(
-          product.sale_price ??
+
+        id:
+          product.id,
+
+        name:
+          product.name,
+
+        price:
+          Number(
+            product.sale_price ??
             product.price
-        ),
+          ),
+
         image_url:
           product.image_url ||
           'logo.png',
-        qty: Math.min(
-          Number(qty || 1),
-          stock
-        )
+
+        qty
+
       });
+
     }
 
-    saveCart(items);
+
+    saveCart(
+      items
+    );
+
 
     window.dispatchEvent(
       new CustomEvent(
@@ -885,88 +378,129 @@
       )
     );
 
+
     return true;
+
   }
 
-  function removeFromCart(id) {
+
+  function removeFromCart(
+    id
+  ){
+
     saveCart(
       cart().filter(
-        (item) =>
-          item.id !== id
+        x =>
+          x.id !==
+          id
       )
     );
+
   }
 
-  function updateCartCount() {
-    const count =
+
+  function updateCartCount(){
+
+    const n =
       cart().reduce(
-        (total, item) =>
-          total +
+        (
+          a,
+          b
+        ) =>
+          a +
           Number(
-            item.qty || 0
+            b.qty ||
+            0
           ),
         0
       );
+
 
     document
       .querySelectorAll(
         '#cartCount'
       )
       .forEach(
-        (element) => {
-          element.textContent =
-            count;
-        }
+        el =>
+          el.textContent =
+            n
       );
+
   }
 
-  function productCard(product) {
+
+  /* =========================
+     PRODUCT CARD
+     ========================= */
+
+  function productCard(
+    p
+  ){
+
     const price =
       Number(
-        product.sale_price ??
-          product.price ??
-          0
+        p.sale_price ??
+        p.price ??
+        0
       );
 
-    const oldPrice =
+
+    const old =
       Number(
-        product.sale_price !=
-          null
-          ? product.price
+        p.sale_price !=
+        null
+          ? p.price
           : 0
       );
 
+
     const badge =
-      product.featured
+      p.coming_soon
+        ? 'COMING SOON'
+        : p.featured
         ? 'BEST SELLER'
-        : product.is_new
+        : p.is_new
         ? 'NEW'
         : '';
 
+
     return `
-      <article class="product-card">
+
+      <article
+        class="product-card"
+      >
 
         <a
           href="product.html?id=${encodeURIComponent(
-            product.id
+            p.id
           )}"
           class="product-image-wrap"
         >
 
           <img
             src="${
-              product.image_url ||
+              p.image_url ||
               'logo.png'
             }"
             alt="${escapeHtml(
-              product.name
+              p.name
             )}"
           >
+
 
           ${
             badge
               ? `
-                <span class="product-badge">
+                <span
+                  class="
+                    product-badge
+                    ${
+                      p.coming_soon
+                        ? 'coming-soon-product-badge'
+                        : ''
+                    }
+                  "
+                >
                   ${badge}
                 </span>
               `
@@ -975,38 +509,50 @@
 
         </a>
 
-        <div class="product-meta">
 
-          <div class="product-cat">
+        <div
+          class="product-meta"
+        >
+
+          <div
+            class="product-cat"
+          >
             ${escapeHtml(
-              product.category || ''
+              p.category ||
+              ''
             )}
           </div>
 
+
           <h3>
+
             <a
               href="product.html?id=${encodeURIComponent(
-                product.id
+                p.id
               )}"
             >
               ${escapeHtml(
-                product.name
+                p.name
               )}
             </a>
+
           </h3>
 
-          <div class="price-row">
+
+          <div
+            class="price-row"
+          >
+
             <strong>
               ${money(price)}
             </strong>
 
+
             ${
-              oldPrice > price
+              old > price
                 ? `
                   <del>
-                    ${money(
-                      oldPrice
-                    )}
+                    ${money(old)}
                   </del>
                 `
                 : ''
@@ -1014,22 +560,40 @@
 
           </div>
 
+
           ${
-            Number(
-              product.stock || 0
-            ) > 0
+            p.coming_soon
+              ? `
+                <span
+                  class="
+                    quick-add
+                    coming-soon-label
+                  "
+                >
+                  Coming soon
+                </span>
+              `
+              : Number(
+                  p.stock ||
+                  0
+                ) > 0
               ? `
                 <button
                   class="quick-add"
                   data-add="${encodeURIComponent(
-                    product.id
+                    p.id
                   )}"
                 >
                   Add to cart
                 </button>
               `
               : `
-                <span class="quick-add">
+                <span
+                  class="
+                    quick-add
+                    out-of-stock-label
+                  "
+                >
                   Out of stock
                 </span>
               `
@@ -1038,10 +602,40 @@
         </div>
 
       </article>
+
     `;
+
   }
 
-  async function wireHome() {
+
+  function escapeHtml(
+    s=''
+  ){
+
+    return String(
+      s
+    ).replace(
+      /[&<>'"]/g,
+      c =>
+        ({
+          '&':
+            '&amp;',
+          '<':
+            '&lt;',
+          '>':
+            '&gt;',
+          "'":
+            '&#39;',
+          '"':
+            '&quot;'
+        }[c])
+    );
+
+  }
+
+
+  async function wireHome(){
+
     const catEl =
       document.getElementById(
         'categoryGrid'
@@ -1057,228 +651,244 @@
         'bestProducts'
       );
 
-    if (
+
+    if(
       !catEl ||
       !newEl ||
       !bestEl
-    ) {
+    ){
+
       return;
+
     }
 
+
     const [
-      categories,
+      cats,
       products
-    ] = await Promise.all([
-      getCategories(),
-      getProducts()
-    ]);
+    ] =
+      await Promise.all([
+        getCategories(),
+        getProducts()
+      ]);
+
 
     catEl.innerHTML =
-      categories
+      cats
         .map(
-          (category) => {
-            const image =
-              category.image_url ||
-              '';
-
-            return `
+          c =>
+            `
               <a
                 class="category-card"
                 href="shop.html?category=${encodeURIComponent(
-                  category.name
+                  c.name
                 )}"
               >
 
-                <div class="category-image">
-
-                  ${
-                    image
-                      ? `
-                        <img
-                          src="${escapeHtml(
-                            image
-                          )}"
-                          alt="${escapeHtml(
-                            category.name
-                          )}"
-                        >
-                      `
-                      : `
-                        <div class="category-placeholder">
-                          ${escapeHtml(
-                            category.name
-                          )}
-                        </div>
-                      `
-                  }
-
-                </div>
+                <img
+                  src="${
+                    c.image_url ||
+                    'logo.png'
+                  }"
+                  alt="${escapeHtml(
+                    c.name
+                  )}"
+                >
 
                 <span>
                   ${escapeHtml(
-                    category.name
+                    c.name
                   )}
                 </span>
 
               </a>
-            `;
-          }
+            `
         )
         .join('');
+
 
     newEl.innerHTML =
       products
         .filter(
-          (product) =>
-            product.is_new
+          x =>
+            x.is_new
         )
-        .slice(0, 4)
-        .map(productCard)
+        .slice(
+          0,
+          4
+        )
+        .map(
+          productCard
+        )
         .join('');
+
 
     bestEl.innerHTML =
       products
         .filter(
-          (product) =>
-            product.featured
+          x =>
+            x.featured
         )
-        .slice(0, 4)
-        .map(productCard)
+        .slice(
+          0,
+          4
+        )
+        .map(
+          productCard
+        )
         .join('');
+
 
     document.addEventListener(
       'click',
-      (event) => {
-        const button =
-          event.target.closest(
+      e => {
+
+        const b =
+          e.target.closest(
             '[data-add]'
           );
 
-        if (!button) return;
+
+        if(!b)
+          return;
+
 
         const id =
           decodeURIComponent(
-            button.dataset.add
+            b.dataset.add
           );
 
-        const product =
+
+        const p =
           products.find(
-            (item) =>
-              item.id === id
+            x =>
+              String(
+                x.id
+              ) ===
+              String(
+                id
+              )
           );
 
-        if (!product) return;
 
-        if (
-          addToCart(
-            product,
-            1
-          )
-        ) {
-          button.textContent =
-            'Added ✓';
+        if(
+          p &&
+          !p.coming_soon
+        ){
 
-          setTimeout(
-            () => {
-              button.textContent =
-                'Add to cart';
-            },
-            900
-          );
+          const added =
+            addToCart(
+              p
+            );
+
+
+          if(
+            added
+          ){
+
+            b.textContent =
+              'Added ✓';
+
+
+            setTimeout(
+              () =>
+                b.textContent =
+                  'Add to cart',
+              900
+            );
+
+          }
+
         }
+
       }
     );
+
   }
 
-  function initCommon() {
+
+  function initCommon(){
+
     updateCartCount();
 
-    const menuButton =
-      document.getElementById(
+
+    document
+      .getElementById(
         'menuBtn'
-      );
+      )
+      ?.addEventListener(
+        'click',
+        () => {
 
-    menuButton?.addEventListener(
-      'click',
-      () => {
-        const menu =
-          document.getElementById(
-            'mobileNav'
-          );
+          const n =
+            document.getElementById(
+              'mobileNav'
+            );
 
-        if (menu) {
-          menu.hidden =
-            !menu.hidden;
+
+          if(n){
+
+            n.hidden =
+              !n.hidden;
+
+          }
+
         }
-      }
-    );
+      );
 
-    const searchButton =
-      document.getElementById(
+
+    document
+      .getElementById(
         'searchBtn'
+      )
+      ?.addEventListener(
+        'click',
+        () => {
+
+          window.location.href =
+            'shop.html';
+
+        }
       );
 
-    searchButton?.addEventListener(
-      'click',
-      () => {
-        location.href =
-          'shop.html';
-      }
-    );
-
-    const hasHomepageEditor =
-      document.getElementById(
-        'heroSection'
-      ) ||
-      document.getElementById(
-        'socialSection'
-      ) ||
-      document.getElementById(
-        'comboSection'
-      ) ||
-      document.getElementById(
-        'faqSection'
-      );
-
-    if (hasHomepageEditor) {
-      loadSiteSettings();
-    }
 
     wireHome();
+
   }
 
-  window.glovaera = {
-    ...(window.glovaera || {}),
-    client,
-    cfg,
-    hasSupabase
-  };
 
   window.GLOVAERA = {
-    ...(window.GLOVAERA || {}),
-    client,
-    cfg,
-    hasSupabase,
-    settings:
-      mergeSettings(
-        defaultSettings
-      ),
-    loadSiteSettings,
-    applySiteSettings,
+
+    ...window.GLOVAERA,
+
     getProducts,
+
     getCategories,
+
     money,
+
     cart,
+
     saveCart,
+
     addToCart,
+
     removeFromCart,
+
     productCard,
+
     escapeHtml,
-    updateCartCount
+
+    updateCartCount,
+
+    hasSupabase
+
   };
+
 
   document.addEventListener(
     'DOMContentLoaded',
     initCommon
   );
+
 })();
