@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
 
   <meta charset="UTF-8">
@@ -9,7 +10,9 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>GLOVAERA Admin</title>
+  <title>
+    GLOVAERA Admin
+  </title>
 
   <link
     rel="preconnect"
@@ -18,7 +21,7 @@
 
   <link
     rel="preconnect"
-    href="https://fonts.gstatic.com"
+    href="https://fonts.googleapis.com"
     crossorigin
   >
 
@@ -36,39 +39,11 @@
 
 <body class="admin-body">
 
-  <div
-    id="adminLoading"
-    class="admin-loading"
-  >
-    <div class="admin-loading-card">
 
-      <img
-        src="logo.png"
-        alt="GLOVAERA"
-        class="admin-loading-logo"
-      >
+  <!-- LOGIN -->
 
-      <div class="loading-spinner"></div>
+  <main class="admin-shell">
 
-      <strong>
-        Loading GLOVAERA...
-      </strong>
-
-      <span>
-        Please wait
-      </span>
-
-    </div>
-  </div>
-
-
-  <main
-    id="adminApp"
-    class="admin-shell"
-    hidden
-  >
-
-    <!-- LOGIN -->
     <section
       id="loginView"
       class="admin-card"
@@ -78,29 +53,36 @@
         href="index.html"
         class="admin-brand-link"
       >
+
         <img
           src="logo.png"
-          alt="GLOVAERA"
           class="admin-logo"
+          alt="GLOVAERA"
         >
+
       </a>
+
 
       <span class="eyebrow">
         GLOVAERA CONTROL CENTRE
       </span>
 
+
       <h1>
         Admin login
       </h1>
 
+
       <p>
-        Manage your store and website
-        without editing code.
+        Manage products, categories and
+        orders without editing code.
       </p>
+
 
       <form id="loginForm">
 
         <label>
+
           Email
 
           <input
@@ -108,11 +90,14 @@
             type="email"
             name="email"
             autocomplete="email"
-            placeholder="admin@example.com"
+            placeholder="Admin email"
           >
+
         </label>
 
+
         <label>
+
           Password
 
           <input
@@ -120,16 +105,19 @@
             type="password"
             name="password"
             autocomplete="current-password"
-            placeholder="••••••••"
+            placeholder="Password"
           >
+
         </label>
 
+
         <button
-          class="btn btn-primary admin-submit"
+          class="btn btn-primary"
           type="submit"
         >
           Sign in
         </button>
+
 
         <div
           id="loginMsg"
@@ -142,6 +130,7 @@
 
 
     <!-- DASHBOARD -->
+
     <section
       id="dashboardView"
       hidden
@@ -161,18 +150,20 @@
 
         </div>
 
+
         <div class="admin-actions">
 
           <a
-            href="index.html"
             class="btn btn-secondary"
+            href="index.html"
           >
             View store
           </a>
 
+
           <button
-            id="logoutBtn"
             class="btn btn-dark"
+            id="logoutBtn"
             type="button"
           >
             Sign out
@@ -182,6 +173,8 @@
 
       </div>
 
+
+      <!-- TABS -->
 
       <div class="admin-tabs">
 
@@ -193,6 +186,7 @@
           Overview
         </button>
 
+
         <button
           class="tab"
           data-tab="products"
@@ -200,6 +194,7 @@
         >
           Products
         </button>
+
 
         <button
           class="tab"
@@ -209,6 +204,7 @@
           Categories
         </button>
 
+
         <button
           class="tab"
           data-tab="orders"
@@ -217,19 +213,12 @@
           Orders
         </button>
 
-        <button
-          class="tab"
-          data-tab="editor"
-          type="button"
-        >
-          Site Editor
-        </button>
-
       </div>
 
 
       <!-- OVERVIEW -->
-      <section
+
+      <div
         id="tab-overview"
         class="tab-panel"
       >
@@ -239,36 +228,41 @@
           class="stats-grid"
         ></div>
 
+
         <div class="admin-welcome-card">
 
           <span class="eyebrow">
-            QUICK CONTROL
+            GLOVAERA STORE
           </span>
 
           <h2>
-            Welcome to your GLOVAERA store.
+            Welcome back.
           </h2>
 
           <p>
-            Products, orders এবং website
-            appearance এক জায়গা থেকেই manage করো।
+            Manage your products, categories
+            and customer orders from here.
           </p>
 
         </div>
 
-      </section>
+      </div>
 
 
       <!-- PRODUCTS -->
-      <section
+
+      <div
         id="tab-products"
         class="tab-panel"
         hidden
       >
 
-        <div class="admin-section-head">
+        <div
+          class="admin-section-head"
+        >
 
           <div>
+
             <span class="eyebrow">
               STORE
             </span>
@@ -276,11 +270,13 @@
             <h2>
               Products
             </h2>
+
           </div>
 
+
           <button
-            id="addProductBtn"
             class="btn btn-primary"
+            id="addProductBtn"
             type="button"
           >
             + Add product
@@ -288,24 +284,29 @@
 
         </div>
 
+
         <div
           id="productAdminList"
           class="admin-list"
         ></div>
 
-      </section>
+      </div>
 
 
       <!-- CATEGORIES -->
-      <section
+
+      <div
         id="tab-categories"
         class="tab-panel"
         hidden
       >
 
-        <div class="admin-section-head">
+        <div
+          class="admin-section-head"
+        >
 
           <div>
+
             <span class="eyebrow">
               STORE
             </span>
@@ -313,11 +314,13 @@
             <h2>
               Categories
             </h2>
+
           </div>
 
+
           <button
-            id="addCategoryBtn"
             class="btn btn-primary"
+            id="addCategoryBtn"
             type="button"
           >
             + Add category
@@ -325,24 +328,29 @@
 
         </div>
 
+
         <div
           id="categoryAdminList"
           class="admin-list"
         ></div>
 
-      </section>
+      </div>
 
 
       <!-- ORDERS -->
-      <section
+
+      <div
         id="tab-orders"
         class="tab-panel"
         hidden
       >
 
-        <div class="admin-section-head">
+        <div
+          class="admin-section-head"
+        >
 
           <div>
+
             <span class="eyebrow">
               SALES
             </span>
@@ -350,11 +358,13 @@
             <h2>
               Orders
             </h2>
+
           </div>
 
+
           <button
-            id="refreshOrdersBtn"
             class="btn btn-secondary"
+            id="refreshOrdersBtn"
             type="button"
           >
             Refresh
@@ -362,695 +372,20 @@
 
         </div>
 
+
         <div
           id="orderAdminList"
           class="admin-list"
         ></div>
 
-      </section>
-
-
-      <!-- SITE EDITOR -->
-      <section
-        id="tab-editor"
-        class="tab-panel"
-        hidden
-      >
-
-        <div class="editor-intro">
-
-          <span class="eyebrow">
-            WEBSITE CUSTOMIZER
-          </span>
-
-          <h2>
-            Site Editor
-          </h2>
-
-          <p>
-            Coding ছাড়াই website-এর
-            content, colors, hero, gallery,
-            combo এবং FAQ পরিবর্তন করো।
-          </p>
-
-        </div>
-
-
-        <!-- ANNOUNCEMENT -->
-        <div class="editor-section">
-
-          <div class="editor-section-head">
-
-            <h3>
-              📢 Announcement
-            </h3>
-
-          </div>
-
-          <div class="editor-grid">
-
-            <label class="editor-field">
-
-              <span>
-                Show announcement
-              </span>
-
-              <select id="announcementEnabled">
-                <option value="true">
-                  Show
-                </option>
-
-                <option value="false">
-                  Hide
-                </option>
-              </select>
-
-            </label>
-
-
-            <label class="editor-field">
-
-              <span>
-                Text
-              </span>
-
-              <input
-                id="announcementText"
-                type="text"
-              >
-
-            </label>
-
-          </div>
-
-        </div>
-
-
-        <!-- BRAND -->
-        <div class="editor-section">
-
-          <div class="editor-section-head">
-
-            <h3>
-              🎨 Brand & layout
-            </h3>
-
-          </div>
-
-          <div class="editor-grid">
-
-            <label class="editor-field">
-              <span>Burgundy</span>
-              <input
-                id="burgundy"
-                type="color"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>Dark Burgundy</span>
-              <input
-                id="darkBurgundy"
-                type="color"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>Gold</span>
-              <input
-                id="gold"
-                type="color"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>Light Gold</span>
-              <input
-                id="lightGold"
-                type="color"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>Background</span>
-              <input
-                id="ivory"
-                type="color"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>Container width</span>
-
-              <input
-                id="containerWidth"
-                type="number"
-                min="900"
-                max="1400"
-              >
-            </label>
-
-          </div>
-
-        </div>
-
-
-        <!-- HERO -->
-        <div class="editor-section">
-
-          <div class="editor-section-head">
-
-            <h3>
-              ✨ Hero section
-            </h3>
-
-          </div>
-
-          <div class="editor-grid">
-
-            <label class="editor-field">
-
-              <span>
-                Show hero
-              </span>
-
-              <select id="heroEnabled">
-                <option value="true">
-                  Show
-                </option>
-
-                <option value="false">
-                  Hide
-                </option>
-              </select>
-
-            </label>
-
-            <label class="editor-field">
-
-              <span>
-                Small heading
-              </span>
-
-              <input
-                id="heroEyebrow"
-                type="text"
-              >
-
-            </label>
-
-            <label class="editor-field">
-
-              <span>
-                Title
-              </span>
-
-              <textarea
-                id="heroTitle"
-                rows="2"
-              ></textarea>
-
-            </label>
-
-            <label class="editor-field">
-
-              <span>
-                Description
-              </span>
-
-              <textarea
-                id="heroDescription"
-                rows="4"
-              ></textarea>
-
-            </label>
-
-            <label class="editor-field">
-
-              <span>
-                Button 1 text
-              </span>
-
-              <input
-                id="heroButton1Text"
-                type="text"
-              >
-
-            </label>
-
-            <label class="editor-field">
-
-              <span>
-                Button 1 link
-              </span>
-
-              <input
-                id="heroButton1Link"
-                type="text"
-              >
-
-            </label>
-
-            <label class="editor-field">
-
-              <span>
-                Button 2 text
-              </span>
-
-              <input
-                id="heroButton2Text"
-                type="text"
-              >
-
-            </label>
-
-            <label class="editor-field">
-
-              <span>
-                Button 2 link
-              </span>
-
-              <input
-                id="heroButton2Link"
-                type="text"
-              >
-
-            </label>
-
-          </div>
-
-
-          <div class="editor-media-list">
-
-            <div class="editor-media-head">
-
-              <strong>
-                Hero image
-              </strong>
-
-              <button
-                id="uploadHero"
-                class="btn btn-primary small"
-                type="button"
-              >
-                Upload
-              </button>
-
-            </div>
-
-            <div
-              id="heroPreview"
-              class="admin-image-preview"
-            ></div>
-
-          </div>
-
-        </div>
-
-
-        <!-- FOLLOW EDIT -->
-        <div class="editor-section">
-
-          <div class="editor-section-head">
-
-            <h3>
-              🖼 Follow the edit
-            </h3>
-
-          </div>
-
-          <div class="editor-grid">
-
-            <label class="editor-field">
-              <span>
-                Show section
-              </span>
-
-              <select id="socialEnabled">
-                <option value="true">
-                  Show
-                </option>
-
-                <option value="false">
-                  Hide
-                </option>
-              </select>
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Small heading
-              </span>
-
-              <input
-                id="socialEyebrow"
-                type="text"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Title
-              </span>
-
-              <input
-                id="socialTitle"
-                type="text"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Columns
-              </span>
-
-              <select id="socialColumns">
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-                <option>6</option>
-              </select>
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Gap
-              </span>
-
-              <input
-                id="socialGap"
-                type="number"
-                min="0"
-                max="40"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Radius
-              </span>
-
-              <input
-                id="socialRadius"
-                type="number"
-                min="0"
-                max="40"
-              >
-            </label>
-
-          </div>
-
-
-          <div class="editor-media-list">
-
-            <div class="editor-media-head">
-
-              <strong>
-                Gallery
-              </strong>
-
-              <button
-                id="addSocialImage"
-                class="btn btn-primary small"
-                type="button"
-              >
-                + Add image
-              </button>
-
-            </div>
-
-            <div
-              id="socialEditorList"
-              class="gallery-editor-list"
-            ></div>
-
-          </div>
-
-        </div>
-
-
-        <!-- COMBO -->
-        <div class="editor-section">
-
-          <div class="editor-section-head">
-
-            <h3>
-              ✨ Featured Combo
-            </h3>
-
-          </div>
-
-          <div class="editor-grid">
-
-            <label class="editor-field">
-
-              <span>
-                Show section
-              </span>
-
-              <select id="comboEnabled">
-                <option value="true">
-                  Show
-                </option>
-
-                <option value="false">
-                  Hide
-                </option>
-              </select>
-
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Eyebrow
-              </span>
-
-              <input
-                id="comboEyebrow"
-                type="text"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Main heading
-              </span>
-
-              <textarea
-                id="comboTitle"
-                rows="2"
-              ></textarea>
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Description
-              </span>
-
-              <textarea
-                id="comboDescription"
-                rows="4"
-              ></textarea>
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Badge
-              </span>
-
-              <input
-                id="comboBadge"
-                type="text"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Product name
-              </span>
-
-              <input
-                id="comboProductTitle"
-                type="text"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Product details
-              </span>
-
-              <input
-                id="comboProductDescription"
-                type="text"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Price
-              </span>
-
-              <input
-                id="comboPrice"
-                type="text"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Button text
-              </span>
-
-              <input
-                id="comboButtonText"
-                type="text"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Button link
-              </span>
-
-              <input
-                id="comboButtonLink"
-                type="text"
-              >
-            </label>
-
-          </div>
-
-
-          <div class="editor-media-list">
-
-            <div class="editor-media-head">
-
-              <strong>
-                Combo image
-              </strong>
-
-              <button
-                id="uploadCombo"
-                class="btn btn-primary small"
-                type="button"
-              >
-                Upload
-              </button>
-
-            </div>
-
-            <div
-              id="comboPreview"
-              class="admin-image-preview"
-            ></div>
-
-          </div>
-
-        </div>
-
-
-        <!-- FAQ -->
-        <div class="editor-section">
-
-          <div class="editor-section-head">
-
-            <h3>
-              ❓ FAQ
-            </h3>
-
-          </div>
-
-          <div class="editor-grid">
-
-            <label class="editor-field">
-              <span>
-                Show FAQ
-              </span>
-
-              <select id="faqEnabled">
-                <option value="true">
-                  Show
-                </option>
-
-                <option value="false">
-                  Hide
-                </option>
-              </select>
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Small heading
-              </span>
-
-              <input
-                id="faqEyebrow"
-                type="text"
-              >
-            </label>
-
-            <label class="editor-field">
-              <span>
-                Title
-              </span>
-
-              <input
-                id="faqTitle"
-                type="text"
-              >
-            </label>
-
-          </div>
-
-
-          <div
-            id="faqEditorList"
-            class="faq-editor-list"
-          ></div>
-
-          <button
-            id="addFaq"
-            class="btn btn-secondary"
-            type="button"
-          >
-            + Add FAQ
-          </button>
-
-        </div>
-
-
-        <div class="editor-save-bar">
-
-          <div>
-
-            <strong>
-              Ready to publish?
-            </strong>
-
-            <span>
-              Save করলে website-এর settings update হবে।
-            </span>
-
-          </div>
-
-          <button
-            id="saveSettings"
-            class="btn btn-primary"
-            type="button"
-          >
-            Save website settings
-          </button>
-
-        </div>
-
-      </section>
+      </div>
 
     </section>
 
   </main>
 
+
+  <!-- MODAL -->
 
   <div
     id="modal"
@@ -1061,12 +396,13 @@
     <div class="modal-card">
 
       <button
-        id="closeModal"
         class="modal-close"
+        id="closeModal"
         type="button"
       >
         ×
       </button>
+
 
       <div
         id="modalContent"
@@ -1077,14 +413,18 @@
   </div>
 
 
-  <!-- IMPORTANT:
-       app.js is intentionally NOT loaded here.
-       Admin creates its own Supabase client.
-  -->
+  <!-- SCRIPTS -->
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
   <script src="config.js"></script>
+
+  <script src="app.js"></script>
+
   <script src="admin.js"></script>
 
 </body>
+
 </html>
