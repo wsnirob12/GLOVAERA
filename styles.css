@@ -3470,3 +3470,584 @@ summary b{
   border-radius:8px;
   padding:9px !important;
 }
+/* =========================================================
+   GLOVAERA STANDARD + ADVANCED WEBSITE EDITOR
+   ========================================================= */
+
+.site-editor-shell{
+  display:grid;
+  gap:20px;
+}
+
+.site-editor-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+
+  padding:24px;
+
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:14px;
+
+  box-shadow:
+    0 10px 35px
+    rgba(74,23,48,.05);
+}
+
+.site-editor-head h2{
+  margin:
+    7px 0
+    5px;
+
+  font-family:
+    "Playfair Display",
+    Georgia,
+    serif;
+
+  font-size:30px;
+}
+
+.site-editor-head p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.site-editor-save-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.site-editor-status{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.site-editor-layout{
+  display:grid;
+  grid-template-columns:
+    220px
+    minmax(0,1fr);
+
+  gap:18px;
+
+  align-items:start;
+}
+
+.site-editor-sidebar{
+  position:sticky;
+  top:20px;
+
+  display:grid;
+  gap:5px;
+
+  padding:12px;
+
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:14px;
+
+  box-shadow:
+    0 10px 35px
+    rgba(74,23,48,.05);
+}
+
+.editor-nav{
+  width:100%;
+
+  min-height:42px;
+
+  padding:
+    0
+    12px;
+
+  border:0;
+  border-radius:8px;
+
+  background:transparent;
+
+  color:#63595f;
+
+  text-align:left;
+
+  font-size:12px;
+  font-weight:700;
+
+  cursor:pointer;
+}
+
+.editor-nav:hover{
+  background:#f8f0f3;
+  color:var(--burgundy);
+}
+
+.editor-nav.active{
+  background:var(--burgundy);
+  color:#fff;
+}
+
+.editor-sidebar-divider{
+  height:1px;
+  margin:8px 2px;
+
+  background:var(--border);
+}
+
+.site-editor-panel{
+  min-width:0;
+
+  display:grid;
+  gap:16px;
+}
+
+.editor-card{
+  padding:24px;
+
+  background:#fff;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:14px;
+
+  box-shadow:
+    0 10px 35px
+    rgba(74,23,48,.05);
+}
+
+.editor-card-head{
+  margin-bottom:19px;
+}
+
+.editor-card-head h3{
+  margin:0 0 4px;
+
+  font-family:
+    "Playfair Display",
+    Georgia,
+    serif;
+
+  font-size:24px;
+
+  color:var(--dark-burgundy);
+}
+
+.editor-card-head p{
+  margin:0;
+
+  color:var(--muted);
+
+  font-size:12px;
+}
+
+.editor-grid{
+  display:grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap:16px;
+}
+
+.editor-field{
+  display:grid;
+  gap:7px;
+}
+
+.editor-field > span{
+  color:var(--ink);
+
+  font-size:12px;
+  font-weight:700;
+}
+
+.editor-field input,
+.editor-field textarea,
+.editor-field select{
+  width:100%;
+
+  min-height:44px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:8px;
+
+  background:#fff;
+
+  padding:
+    10px
+    12px;
+
+  outline:0;
+
+  color:var(--ink);
+}
+
+.editor-field textarea{
+  resize:vertical;
+}
+
+.editor-field input:focus,
+.editor-field textarea:focus,
+.editor-field select:focus{
+  border-color:var(--gold);
+
+  box-shadow:
+    0 0 0 4px
+    rgba(
+      216,
+      181,
+      106,
+      .10
+    );
+}
+
+.editor-field input[type="color"]{
+  padding:3px;
+  cursor:pointer;
+}
+
+.editor-quick-grid{
+  display:grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      1fr
+    );
+
+  gap:10px;
+}
+
+.editor-jump,
+.editor-feature{
+  min-height:64px;
+
+  padding:12px;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:10px;
+
+  background:#fcfaf7;
+
+  color:var(--dark-burgundy);
+
+  cursor:pointer;
+
+  text-align:left;
+}
+
+.editor-jump:hover,
+.editor-feature:hover{
+  border-color:var(--gold);
+  background:#fffaf2;
+}
+
+.editor-feature-grid{
+  display:grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      1fr
+    );
+
+  gap:12px;
+}
+
+.editor-feature{
+  display:grid;
+  gap:4px;
+}
+
+.editor-feature span{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.editor-info-box{
+  margin-top:16px;
+
+  padding:14px 16px;
+
+  background:#f7efe7;
+
+  border:
+    1px solid
+    #eadbcf;
+
+  border-radius:9px;
+
+  color:var(--muted);
+
+  font-size:12px;
+  line-height:1.6;
+}
+
+.editor-upload-row{
+  display:flex;
+
+  flex-wrap:wrap;
+
+  align-items:center;
+
+  gap:10px;
+
+  margin-top:18px;
+
+  padding-top:18px;
+
+  border-top:
+    1px solid
+    var(--border);
+}
+
+.editor-url{
+  min-width:0;
+
+  color:var(--muted);
+
+  font-size:11px;
+
+  word-break:break-all;
+}
+
+.editor-media-head{
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:15px;
+
+  margin:
+    22px
+    0
+    13px;
+}
+
+.gallery-editor-list{
+  display:grid;
+  gap:12px;
+}
+
+.gallery-editor-row{
+  display:grid;
+
+  grid-template-columns:
+    100px
+    minmax(
+      0,
+      1fr
+    );
+
+  gap:14px;
+
+  padding:12px;
+
+  background:#fcfaf7;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:10px;
+}
+
+.gallery-preview{
+  width:100px;
+  height:100px;
+
+  overflow:hidden;
+
+  border-radius:8px;
+
+  background:#f2e9e0;
+}
+
+.gallery-preview img{
+  width:100%;
+  height:100%;
+
+  display:block;
+
+  object-fit:cover;
+}
+
+.gallery-editor-main{
+  display:grid;
+  gap:7px;
+}
+
+.gallery-url{
+  color:var(--muted);
+  font-size:11px;
+  word-break:break-all;
+}
+
+.gallery-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.faq-editor-list{
+  display:grid;
+  gap:12px;
+}
+
+.faq-editor-item{
+  display:grid;
+
+  grid-template-columns:
+    38px
+    minmax(
+      0,
+      1fr
+    );
+
+  gap:12px;
+
+  padding:12px;
+
+  background:#fcfaf7;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:10px;
+}
+
+.faq-editor-number{
+  width:34px;
+  height:34px;
+
+  display:grid;
+  place-items:center;
+
+  border-radius:50%;
+
+  background:var(--burgundy);
+
+  color:#fff;
+
+  font-size:12px;
+  font-weight:800;
+}
+
+.faq-editor-fields{
+  display:grid;
+  gap:9px;
+}
+
+.faq-editor-fields input,
+.faq-editor-fields textarea{
+  width:100%;
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius:8px;
+
+  padding:
+    10px
+    12px;
+
+  outline:0;
+}
+
+.coming-soon-product-badge{
+  background:
+    var(--dark-burgundy) !important;
+
+  color:#fff !important;
+}
+
+@media(max-width:900px){
+
+  .site-editor-layout{
+    grid-template-columns:1fr;
+  }
+
+  .site-editor-sidebar{
+    position:static;
+
+    grid-template-columns:
+      repeat(
+        2,
+        1fr
+      );
+  }
+
+  .editor-sidebar-divider{
+    display:none;
+  }
+
+  .editor-grid{
+    grid-template-columns:1fr;
+  }
+
+  .editor-quick-grid{
+    grid-template-columns:
+      repeat(
+        2,
+        1fr
+      );
+  }
+
+}
+
+@media(max-width:620px){
+
+  .site-editor-head{
+    align-items:flex-start;
+
+    flex-direction:column;
+  }
+
+  .site-editor-save-wrap{
+    width:100%;
+  }
+
+  .site-editor-save-wrap .btn{
+    flex:1;
+  }
+
+  .site-editor-sidebar{
+    grid-template-columns:1fr;
+  }
+
+  .editor-feature-grid{
+    grid-template-columns:1fr;
+  }
+
+  .gallery-editor-row{
+    grid-template-columns:
+      80px
+      1fr;
+  }
+
+  .gallery-preview{
+    width:80px;
+    height:80px;
+  }
+
+}
