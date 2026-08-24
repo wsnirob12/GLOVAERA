@@ -1,100 +1,252 @@
-(function(){
+(function () {
 
-  'use strict';
+  const cfg =
+    window.GLOVAERA_CONFIG ||
+    {};
 
 
-  /* =====================================================
-     SUPABASE CLIENT
-     app.js already creates window.glovaera.client
-     ===================================================== */
+  const hasSupabase =
+    !!(
+      window.supabase &&
+      cfg.supabaseUrl &&
+      cfg.supabaseAnonKey &&
+      !String(
+        cfg.supabaseUrl
+      ).startsWith('YOUR_')
+    );
+
 
   const client =
-    window.glovaera?.client || null;
+    hasSupabase
+      ? window.supabase.createClient(
+          cfg.supabaseUrl,
+          cfg.supabaseAnonKey
+        )
+      : null;
 
 
-  const state = {
-    user:null,
-    products:[],
-    categories:[],
-    orders:[]
+  window.glovaera = {
+    client,
+    cfg,
+    hasSupabase
   };
 
 
-  const loginView =
-    document.getElementById(
-      'loginView'
-    );
+  const demoProducts = [
 
-  const dashboardView =
-    document.getElementById(
-      'dashboardView'
-    );
+    {
+      id:'demo-1',
+      name:'Pearl Drop Earrings',
+      category:'Earrings',
+      price:180,
+      sale_price:150,
+      stock:12,
+      featured:true,
+      is_new:true,
+      combo:false,
+      coming_soon:false,
+      image_url:'logo.png',
+      description:
+        'Delicate pearl-inspired earrings for everyday styling.',
+      material:
+        'Alloy + imitation pearl',
+      color:
+        'Gold'
+    },
 
-  const loginMsg =
-    document.getElementById(
-      'loginMsg'
-    );
+    {
+      id:'demo-2',
+      name:'Luna Jhumka',
+      category:'Jhumka',
+      price:240,
+      sale_price:199,
+      stock:8,
+      featured:true,
+      is_new:true,
+      combo:false,
+      coming_soon:false,
+      image_url:'logo.png',
+      description:
+        'Classic jhumka silhouette with a modern finish.',
+      material:
+        'Alloy',
+      color:
+        'Antique Gold'
+    },
 
-  const modal =
-    document.getElementById(
-      'modal'
-    );
+    {
+      id:'demo-3',
+      name:'Everyday Minimal Ring',
+      category:'Rings',
+      price:150,
+      sale_price:120,
+      stock:20,
+      featured:false,
+      is_new:true,
+      combo:false,
+      coming_soon:false,
+      image_url:'logo.png',
+      description:
+        'A simple stack-friendly ring for everyday looks.',
+      material:
+        'Alloy',
+      color:
+        'Gold'
+    },
 
-  const modalContent =
-    document.getElementById(
-      'modalContent'
-    );
+    {
+      id:'demo-4',
+      name:'Soft Glow Set',
+      category:'Combos',
+      price:420,
+      sale_price:349,
+      stock:6,
+      featured:true,
+      is_new:false,
+      combo:true,
+      coming_soon:false,
+      image_url:'logo.png',
+      description:
+        'Earrings + ring + hijab pin in one easy set.',
+      material:
+        'Mixed fashion jewellery',
+      color:
+        'Gold'
+    }
+
+  ];
 
 
-  /* =====================================================
-     HELPERS
-     ===================================================== */
+  const demoCategories = [
 
-  function escapeHtml(
-    value=''
-  ){
+    {
+      id:'c1',
+      name:'Earrings',
+      slug:'earrings',
+      image_url:'logo.png'
+    },
 
-    if(
-      window.GLOVAERA?.escapeHtml
-    ){
+    {
+      id:'c2',
+      name:'Jhumka',
+      slug:'jhumka',
+      image_url:'logo.png'
+    },
 
-      return window.GLOVAERA.escapeHtml(
-        value
+    {
+      id:'c3',
+      name:'Rings',
+      slug:'rings',
+      image_url:'logo.png'
+    },
+
+    {
+      id:'c4',
+      name:'Necklaces',
+      slug:'necklaces',
+      image_url:'logo.png'
+    },
+
+    {
+      id:'c5',
+      name:'Hijab Pins',
+      slug:'hijab-pins',
+      image_url:'logo.png'
+    },
+
+    {
+      id:'c6',
+      name:'Combos',
+      slug:'combos',
+      image_url:'logo.png'
+    }
+
+  ];
+
+
+  async function getProducts() {
+
+    if (!client)
+      return demoProducts;
+
+
+    const {
+      data,
+      error
+    } =
+      await client
+        .from('products')
+        .select('*')
+        .eq(
+          'active',
+          true
+        )
+        .order(
+          'created_at',
+          {
+            ascending:false
+          }
+        );
+
+
+    if (error) {
+
+      console.warn(
+        'Products:',
+        error
       );
+
+      return demoProducts;
 
     }
 
-    return String(
-      value
-    ).replace(
-      /[&<>'"]/g,
-      c => ({
-        '&':'&amp;',
-        '<':'&lt;',
-        '>':'&gt;',
-        "'":'&#39;',
-        '"':'&quot;'
-      }[c])
-    );
+
+    return data || [];
+
+  }
+
+
+  async function getCategories() {
+
+    if (!client)
+      return demoCategories;
+
+
+    const {
+      data,
+      error
+    } =
+      await client
+        .from('categories')
+        .select('*')
+        .order('name');
+
+
+    if (error) {
+
+      console.warn(
+        'Categories:',
+        error
+      );
+
+      return demoCategories;
+
+    }
+
+
+    return data || [];
 
   }
 
 
   function money(
     value
-  ){
+  ) {
 
-    if(
-      window.GLOVAERA?.money
-    ){
-
-      return window.GLOVAERA.money(
-        value
-      );
-
-    }
-
-    return `৳${
+    return `${
+      cfg.currency ||
+      '৳'
+    }${
       Number(
         value || 0
       ).toLocaleString(
@@ -105,1853 +257,683 @@
   }
 
 
-  function showModal(
-    html
-  ){
+  function cart() {
 
-    modalContent.innerHTML =
-      html;
+    try {
 
-    modal.hidden =
-      false;
-
-  }
-
-
-  function closeModal(){
-
-    modal.hidden =
-      true;
-
-  }
-
-
-  /* =====================================================
-     LOGIN
-     ===================================================== */
-
-  async function signIn(
-    event
-  ){
-
-    event.preventDefault();
-
-
-    if(!client){
-
-      loginMsg.textContent =
-        'Supabase connection was not initialized. Please refresh the page.';
-
-      return;
-
-    }
-
-
-    const form =
-      new FormData(
-        event.target
-      );
-
-
-    loginMsg.textContent =
-      'Signing in...';
-
-
-    try{
-
-      const result =
-        await client.auth.signInWithPassword({
-
-          email:
-            form.get(
-              'email'
-            ),
-
-          password:
-            form.get(
-              'password'
-            )
-
-        });
-
-
-      if(
-        result.error
-      ){
-
-        loginMsg.textContent =
-          result.error.message;
-
-        return;
-
-      }
-
-
-      state.user =
-        result.data.user;
-
-
-      loginMsg.textContent =
-        '';
-
-
-      await boot();
-
-
-    }catch(error){
-
-      console.error(
-        error
-      );
-
-      loginMsg.textContent =
-        error.message ||
-        'Login failed.';
-
-    }
-
-  }
-
-
-  async function boot(){
-
-    loginView.hidden =
-      true;
-
-    dashboardView.hidden =
-      false;
-
-
-    await refreshAll();
-
-  }
-
-
-  /* =====================================================
-     LOAD ALL DATA
-     ===================================================== */
-
-  async function refreshAll(){
-
-    if(!client){
-
-      return;
-
-    }
-
-
-    try{
-
-      const [
-        products,
-        categories,
-        orders
-      ] =
-      await Promise.all([
-
-        client
-          .from(
-            'products'
-          )
-          .select('*')
-          .order(
-            'created_at',
-            {
-              ascending:false
-            }
-          ),
-
-        client
-          .from(
-            'categories'
-          )
-          .select('*')
-          .order(
-            'name'
-          ),
-
-        client
-          .from(
-            'orders'
-          )
-          .select('*')
-          .order(
-            'created_at',
-            {
-              ascending:false
-            }
-          )
-
-      ]);
-
-
-      if(
-        products.error
-      ){
-        throw products.error;
-      }
-
-
-      if(
-        categories.error
-      ){
-        throw categories.error;
-      }
-
-
-      if(
-        orders.error
-      ){
-        throw orders.error;
-      }
-
-
-      state.products =
-        products.data ||
-        [];
-
-      state.categories =
-        categories.data ||
-        [];
-
-      state.orders =
-        orders.data ||
-        [];
-
-
-      renderOverview();
-      renderProducts();
-      renderCategories();
-      renderOrders();
-
-
-    }catch(error){
-
-      console.error(
-        error
-      );
-
-      alert(
-        'Could not load admin data: ' +
-        (
-          error.message ||
-          'Unknown error'
-        )
-      );
-
-    }
-
-  }
-
-
-  /* =====================================================
-     OVERVIEW
-     ===================================================== */
-
-  function renderOverview(){
-
-    const stats =
-      document.getElementById(
-        'statsGrid'
-      );
-
-
-    if(!stats)
-      return;
-
-
-    const pending =
-      state.orders.filter(
-        order =>
-          [
-            'new',
-            'confirmed',
-            'processing'
-          ].includes(
-            order.status
-          )
-      ).length;
-
-
-    stats.innerHTML = [
-
-      [
-        'Products',
-        state.products.length
-      ],
-
-      [
-        'Categories',
-        state.categories.length
-      ],
-
-      [
-        'Orders',
-        state.orders.length
-      ],
-
-      [
-        'Pending',
-        pending
-      ]
-
-    ]
-    .map(
-      item => `
-
-        <div class="stat-card">
-
-          <span>
-            ${item[0]}
-          </span>
-
-          <strong>
-            ${item[1]}
-          </strong>
-
-        </div>
-
-      `
-    )
-    .join('');
-
-  }
-
-
-  /* =====================================================
-     PRODUCTS
-     ===================================================== */
-
-  function renderProducts(){
-
-    const list =
-      document.getElementById(
-        'productAdminList'
-      );
-
-
-    if(!list)
-      return;
-
-
-    list.innerHTML =
-      state.products
-        .map(
-          product => `
-
-            <div class="admin-row">
-
-              <img
-                src="${
-                  product.image_url ||
-                  'logo.png'
-                }"
-                alt=""
-              >
-
-
-              <div class="grow">
-
-                <strong>
-                  ${escapeHtml(
-                    product.name
-                  )}
-                </strong>
-
-
-                <span>
-
-                  ${escapeHtml(
-                    product.category ||
-                    ''
-                  )}
-
-                  ·
-
-                  ${money(
-                    product.sale_price ??
-                    product.price
-                  )}
-
-                  · Stock
-                  ${
-                    product.stock ??
-                    0
-                  }
-
-                  ${
-                    product.coming_soon
-                      ? ' · 🚀 Coming Soon'
-                      : ''
-                  }
-
-                </span>
-
-              </div>
-
-
-              <button
-                class="btn btn-secondary small"
-                data-edit-product="${
-                  product.id
-                }"
-                type="button"
-              >
-                Edit
-              </button>
-
-
-              <button
-                class="btn btn-danger small"
-                data-delete-product="${
-                  product.id
-                }"
-                type="button"
-              >
-                Delete
-              </button>
-
-            </div>
-
-          `
-        )
-        .join('')
-
-      ||
-
-      `
-        <div class="empty-state">
-          No products yet.
-        </div>
-      `;
-
-  }
-
-
-  /* =====================================================
-     CATEGORIES
-     ===================================================== */
-
-  function renderCategories(){
-
-    const list =
-      document.getElementById(
-        'categoryAdminList'
-      );
-
-
-    if(!list)
-      return;
-
-
-    list.innerHTML =
-      state.categories
-        .map(
-          category => `
-
-            <div class="admin-row">
-
-              <div class="grow">
-
-                <strong>
-                  ${escapeHtml(
-                    category.name
-                  )}
-                </strong>
-
-
-                <span>
-                  ${escapeHtml(
-                    category.slug ||
-                    ''
-                  )}
-                </span>
-
-              </div>
-
-
-              <button
-                class="btn btn-secondary small"
-                data-edit-category="${
-                  category.id
-                }"
-                type="button"
-              >
-                Edit
-              </button>
-
-
-              <button
-                class="btn btn-danger small"
-                data-delete-category="${
-                  category.id
-                }"
-                type="button"
-              >
-                Delete
-              </button>
-
-            </div>
-
-          `
-        )
-        .join('')
-
-      ||
-
-      `
-        <div class="empty-state">
-          No categories yet.
-        </div>
-      `;
-
-  }
-
-
-  /* =====================================================
-     ORDERS
-     ===================================================== */
-
-  function renderOrders(){
-
-    const list =
-      document.getElementById(
-        'orderAdminList'
-      );
-
-
-    if(!list)
-      return;
-
-
-    list.innerHTML =
-      state.orders
-        .map(
-          order => `
-
-            <div class="admin-order">
-
-              <div
-                class="admin-order-head"
-              >
-
-                <strong>
-
-                  #
-                  ${escapeHtml(
-                    String(
-                      order.id
-                    ).slice(
-                      0,
-                      8
-                    )
-                  )}
-
-                </strong>
-
-
-                <span
-                  class="status"
-                >
-                  ${escapeHtml(
-                    order.status
-                  )}
-                </span>
-
-              </div>
-
-
-              <p>
-
-                ${escapeHtml(
-                  order.customer_name
-                )}
-
-                ·
-
-                ${escapeHtml(
-                  order.phone
-                )}
-
-              </p>
-
-
-              <p>
-
-                ${escapeHtml(
-                  order.address
-                )}
-
-                ,
-
-                ${escapeHtml(
-                  order.district
-                )}
-
-              </p>
-
-
-              <strong>
-                ${money(
-                  order.total
-                )}
-              </strong>
-
-
-              <div
-                class="order-actions"
-              >
-
-                <select
-                  data-order-status="${
-                    order.id
-                  }"
-                >
-
-                  ${
-                    [
-                      'new',
-                      'confirmed',
-                      'processing',
-                      'shipped',
-                      'delivered',
-                      'cancelled'
-                    ]
-                    .map(
-                      status => `
-
-                        <option
-                          ${
-                            status ===
-                            order.status
-                              ? 'selected'
-                              : ''
-                          }
-                        >
-                          ${status}
-                        </option>
-
-                      `
-                    )
-                    .join('')
-                  }
-
-                </select>
-
-              </div>
-
-            </div>
-
-          `
-        )
-        .join('')
-
-      ||
-
-      `
-        <div class="empty-state">
-          No orders yet.
-        </div>
-      `;
-
-  }
-
-
-  /* =====================================================
-     PRODUCT FORM
-     ===================================================== */
-
-  function productForm(
-    product={}
-  ){
-
-    return `
-
-      <form
-        id="productForm"
-        class="form-grid"
-      >
-
-        <input
-          type="hidden"
-          name="id"
-          value="${
-            product.id ||
-            ''
-          }"
-        >
-
-
-        <label>
-
-          Name
-
-          <input
-            required
-            name="name"
-            value="${escapeHtml(
-              product.name ||
-              ''
-            )}"
-          >
-
-        </label>
-
-
-        <label>
-
-          Category
-
-          <select
-            required
-            name="category"
-          >
-
-            ${
-              state.categories
-                .map(
-                  category => `
-
-                    <option
-                      ${
-                        category.name ===
-                        product.category
-                          ? 'selected'
-                          : ''
-                      }
-                      value="${escapeHtml(
-                        category.name
-                      )}"
-                    >
-                      ${escapeHtml(
-                        category.name
-                      )}
-                    </option>
-
-                  `
-                )
-                .join('')
-            }
-
-          </select>
-
-        </label>
-
-
-        <label>
-
-          Price
-
-          <input
-            required
-            type="number"
-            min="0"
-            name="price"
-            value="${
-              product.price ||
-              0
-            }"
-          >
-
-        </label>
-
-
-        <label>
-
-          Sale price
-
-          <input
-            type="number"
-            min="0"
-            name="sale_price"
-            value="${
-              product.sale_price ??
-              ''
-            }"
-          >
-
-        </label>
-
-
-        <label>
-
-          Stock
-
-          <input
-            required
-            type="number"
-            min="0"
-            name="stock"
-            value="${
-              product.stock ||
-              0
-            }"
-          >
-
-        </label>
-
-
-        <label>
-
-          Image URL
-
-          <input
-            name="image_url"
-            value="${escapeHtml(
-              product.image_url ||
-              'logo.png'
-            )}"
-          >
-
-        </label>
-
-
-        <label>
-
-          Upload image
-
-          <input
-            type="file"
-            accept="image/*"
-            name="image_file"
-          >
-
-        </label>
-
-
-        <label class="full">
-
-          Description
-
-          <textarea
-            name="description"
-            rows="4"
-          >${escapeHtml(
-            product.description ||
-            ''
-          )}</textarea>
-
-        </label>
-
-
-        <label>
-
-          <input
-            type="checkbox"
-            name="featured"
-            ${
-              product.featured
-                ? 'checked'
-                : ''
-            }
-          >
-
-          Best seller
-
-        </label>
-
-
-        <label>
-
-          <input
-            type="checkbox"
-            name="is_new"
-            ${
-              product.is_new
-                ? 'checked'
-                : ''
-            }
-          >
-
-          New arrival
-
-        </label>
-
-
-        <label>
-
-          <input
-            type="checkbox"
-            name="combo"
-            ${
-              product.combo
-                ? 'checked'
-                : ''
-            }
-          >
-
-          Combo
-
-        </label>
-
-
-        <!-- COMING SOON -->
-
-        <label
-          class="coming-soon-option"
-        >
-
-          <input
-            type="checkbox"
-            name="coming_soon"
-            ${
-              product.coming_soon
-                ? 'checked'
-                : ''
-            }
-          >
-
-          🚀 Coming Soon
-
-        </label>
-
-
-        <button
-          class="btn btn-primary full"
-          type="submit"
-        >
-          Save product
-        </button>
-
-      </form>
-
-    `;
-
-  }
-
-
-  /* =====================================================
-     CATEGORY FORM
-     ===================================================== */
-
-  function categoryForm(
-    category={}
-  ){
-
-    return `
-
-      <form
-        id="categoryForm"
-        class="form-grid"
-      >
-
-        <input
-          type="hidden"
-          name="id"
-          value="${
-            category.id ||
-            ''
-          }"
-        >
-
-
-        <label>
-
-          Name
-
-          <input
-            required
-            name="name"
-            value="${escapeHtml(
-              category.name ||
-              ''
-            )}"
-          >
-
-        </label>
-
-
-        <label>
-
-          Slug
-
-          <input
-            required
-            name="slug"
-            value="${escapeHtml(
-              category.slug ||
-              ''
-            )}"
-          >
-
-        </label>
-
-
-        <label class="full">
-
-          Image URL
-
-          <input
-            name="image_url"
-            value="${escapeHtml(
-              category.image_url ||
-              'logo.png'
-            )}"
-          >
-
-        </label>
-
-
-        <button
-          class="btn btn-primary full"
-          type="submit"
-        >
-          Save category
-        </button>
-
-      </form>
-
-    `;
-
-  }
-
-
-  /* =====================================================
-     SAVE PRODUCT
-     ===================================================== */
-
-  async function saveProduct(
-    event
-  ){
-
-    event.preventDefault();
-
-
-    const form =
-      new FormData(
-        event.target
-      );
-
-
-    try{
-
-      let imageUrl =
-        form.get(
-          'image_url'
+      return JSON.parse(
+        localStorage.getItem(
+          'glovaera_cart'
         ) ||
-        'logo.png';
+        '[]'
+      );
+
+    } catch {
+
+      return [];
+
+    }
+
+  }
 
 
-      const file =
-        form.get(
-          'image_file'
-        );
+  function saveCart(
+    items
+  ) {
+
+    localStorage.setItem(
+      'glovaera_cart',
+      JSON.stringify(
+        items
+      )
+    );
 
 
-      if(
-        file &&
-        file.size
-      ){
+    updateCartCount();
 
-        const safeName =
-          file.name.replace(
-            /[^a-zA-Z0-9._-]/g,
-            '-'
-          );
+  }
 
 
-        const path =
-          `${crypto.randomUUID()}-${safeName}`;
+  function addToCart(
+    product,
+    qty = 1
+  ) {
+
+    if (
+      product.coming_soon
+    ) {
+
+      return false;
+
+    }
 
 
-        const upload =
-          await client
-            .storage
-            .from(
-              'product-images'
-            )
-            .upload(
-              path,
-              file,
-              {
-                upsert:false,
-                contentType:
-                  file.type
-              }
-            );
+    if (
+      Number(
+        product.stock || 0
+      ) <= 0
+    ) {
+
+      return false;
+
+    }
 
 
-        if(
-          upload.error
-        ){
-
-          alert(
-            upload.error.message
-          );
-
-          return;
-
-        }
+    const items =
+      cart();
 
 
-        imageUrl =
-          client
-            .storage
-            .from(
-              'product-images'
-            )
-            .getPublicUrl(
-              path
-            )
-            .data
-            .publicUrl;
-
-      }
+    const found =
+      items.find(
+        item =>
+          item.id ===
+          product.id
+      );
 
 
-      const record = {
+    if (found) {
+
+      found.qty +=
+        Number(qty || 1);
+
+    } else {
+
+      items.push({
+
+        id:
+          product.id,
 
         name:
-          form.get(
-            'name'
-          ),
-
-        category:
-          form.get(
-            'category'
-          ),
+          product.name,
 
         price:
           Number(
-            form.get(
-              'price'
-            )
-          ),
-
-        sale_price:
-          form.get(
-            'sale_price'
-          )
-            ? Number(
-                form.get(
-                  'sale_price'
-                )
-              )
-            : null,
-
-        stock:
-          Number(
-            form.get(
-              'stock'
-            )
+            product.sale_price ??
+            product.price
           ),
 
         image_url:
-          imageUrl,
+          product.image_url ||
+          'logo.png',
 
-        description:
-          form.get(
-            'description'
-          ),
+        qty:
+          Number(
+            qty || 1
+          )
 
-        featured:
-          form.get(
-            'featured'
-          ) === 'on',
-
-        is_new:
-          form.get(
-            'is_new'
-          ) === 'on',
-
-        combo:
-          form.get(
-            'combo'
-          ) === 'on',
-
-        /* NEW */
-
-        coming_soon:
-          form.get(
-            'coming_soon'
-          ) === 'on',
-
-        active:true
-
-      };
-
-
-      const id =
-        form.get(
-          'id'
-        );
-
-
-      const query =
-        id
-
-          ? client
-              .from(
-                'products'
-              )
-              .update(
-                record
-              )
-              .eq(
-                'id',
-                id
-              )
-
-          : client
-              .from(
-                'products'
-              )
-              .insert(
-                record
-              );
-
-
-      const {
-        error
-      } =
-      await query;
-
-
-      if(error){
-
-        alert(
-          error.message
-        );
-
-        return;
-
-      }
-
-
-      closeModal();
-
-      await refreshAll();
-
-
-    }catch(error){
-
-      console.error(
-        error
-      );
-
-      alert(
-        error.message ||
-        'Could not save product.'
-      );
+      });
 
     }
+
+
+    saveCart(
+      items
+    );
+
+
+    window.dispatchEvent(
+      new CustomEvent(
+        'cart:updated'
+      )
+    );
+
+
+    return true;
 
   }
 
 
-  /* =====================================================
-     SAVE CATEGORY
-     ===================================================== */
+  function removeFromCart(
+    id
+  ) {
 
-  async function saveCategory(
-    event
-  ){
+    saveCart(
+      cart().filter(
+        item =>
+          item.id !== id
+      )
+    );
 
-    event.preventDefault();
+  }
 
 
-    const form =
-      new FormData(
-        event.target
+  function updateCartCount() {
+
+    const total =
+      cart().reduce(
+        (
+          sum,
+          item
+        ) =>
+          sum +
+          Number(
+            item.qty ||
+            0
+          ),
+        0
       );
 
 
-    const record = {
+    document
+      .querySelectorAll(
+        '#cartCount'
+      )
+      .forEach(
+        element => {
 
-      name:
-        form.get(
-          'name'
-        ),
+          element.textContent =
+            total;
 
-      slug:
-        form.get(
-          'slug'
-        ),
+        }
+      );
 
-      image_url:
-        form.get(
-          'image_url'
-        ) ||
-        'logo.png'
-
-    };
+  }
 
 
-    const id =
-      form.get(
-        'id'
+  function escapeHtml(
+    value = ''
+  ) {
+
+    return String(
+      value
+    ).replace(
+      /[&<>'"]/g,
+      char =>
+        ({
+          '&':'&amp;',
+          '<':'&lt;',
+          '>':'&gt;',
+          "'":'&#39;',
+          '"':'&quot;'
+        }[char])
+    );
+
+  }
+
+
+  function productCard(
+    product
+  ) {
+
+    const price =
+      Number(
+        product.sale_price ??
+        product.price ??
+        0
       );
 
 
-    const query =
-      id
-
-        ? client
-            .from(
-              'categories'
-            )
-            .update(
-              record
-            )
-            .eq(
-              'id',
-              id
-            )
-
-        : client
-            .from(
-              'categories'
-            )
-            .insert(
-              record
-            );
-
-
-    const {
-      error
-    } =
-    await query;
-
-
-    if(error){
-
-      alert(
-        error.message
+    const oldPrice =
+      Number(
+        product.sale_price !=
+        null
+          ? product.price
+          : 0
       );
+
+
+    const badge =
+      product.coming_soon
+        ? 'COMING SOON'
+        : product.featured
+        ? 'BEST SELLER'
+        : product.is_new
+        ? 'NEW'
+        : '';
+
+
+    return `
+
+      <article
+        class="product-card"
+      >
+
+        <a
+          href="product.html?id=${encodeURIComponent(
+            product.id
+          )}"
+          class="product-image-wrap"
+        >
+
+          <img
+            src="${
+              product.image_url ||
+              'logo.png'
+            }"
+            alt="${escapeHtml(
+              product.name
+            )}"
+          >
+
+          ${
+            badge
+              ? `
+                <span
+                  class="
+                    product-badge
+                    ${
+                      product.coming_soon
+                        ? 'coming-soon-product-badge'
+                        : ''
+                    }
+                  "
+                >
+                  ${badge}
+                </span>
+              `
+              : ''
+          }
+
+        </a>
+
+
+        <div
+          class="product-meta"
+        >
+
+          <div
+            class="product-cat"
+          >
+            ${escapeHtml(
+              product.category ||
+              ''
+            )}
+          </div>
+
+
+          <h3>
+
+            <a
+              href="product.html?id=${encodeURIComponent(
+                product.id
+              )}"
+            >
+              ${escapeHtml(
+                product.name
+              )}
+            </a>
+
+          </h3>
+
+
+          <div
+            class="price-row"
+          >
+
+            <strong>
+              ${money(price)}
+            </strong>
+
+            ${
+              oldPrice > price
+                ? `
+                  <del>
+                    ${money(
+                      oldPrice
+                    )}
+                  </del>
+                `
+                : ''
+            }
+
+          </div>
+
+
+          ${
+            product.coming_soon
+              ? `
+                <span
+                  class="
+                    quick-add
+                    coming-soon-label
+                  "
+                >
+                  Coming soon
+                </span>
+              `
+              : Number(
+                  product.stock || 0
+                ) > 0
+              ? `
+                <button
+                  class="quick-add"
+                  data-add="${encodeURIComponent(
+                    product.id
+                  )}"
+                >
+                  Add to cart
+                </button>
+              `
+              : `
+                <span
+                  class="
+                    quick-add
+                    out-of-stock-label
+                  "
+                >
+                  Out of stock
+                </span>
+              `
+          }
+
+        </div>
+
+      </article>
+
+    `;
+
+  }
+
+
+  async function wireHome() {
+
+    const catEl =
+      document.getElementById(
+        'categoryGrid'
+      );
+
+    const newEl =
+      document.getElementById(
+        'newProducts'
+      );
+
+    const bestEl =
+      document.getElementById(
+        'bestProducts'
+      );
+
+
+    if (
+      !catEl ||
+      !newEl ||
+      !bestEl
+    ) {
 
       return;
 
     }
 
 
-    closeModal();
+    const [
+      categories,
+      products
+    ] =
+      await Promise.all([
+        getCategories(),
+        getProducts()
+      ]);
 
-    await refreshAll();
+
+    catEl.innerHTML =
+      categories
+        .map(
+          category => `
+
+            <a
+              class="category-card"
+              href="shop.html?category=${encodeURIComponent(
+                category.name
+              )}"
+            >
+
+              <div
+                class="category-image"
+              >
+
+                <img
+                  src="${
+                    category.image_url ||
+                    'logo.png'
+                  }"
+                  alt="${escapeHtml(
+                    category.name
+                  )}"
+                >
+
+              </div>
+
+              <span>
+                ${escapeHtml(
+                  category.name
+                )}
+              </span>
+
+            </a>
+
+          `
+        )
+        .join('');
+
+
+    newEl.innerHTML =
+      products
+        .filter(
+          product =>
+            product.is_new
+        )
+        .slice(
+          0,
+          4
+        )
+        .map(
+          productCard
+        )
+        .join('');
+
+
+    bestEl.innerHTML =
+      products
+        .filter(
+          product =>
+            product.featured
+        )
+        .slice(
+          0,
+          4
+        )
+        .map(
+          productCard
+        )
+        .join('');
+
+
+    document.addEventListener(
+      'click',
+      event => {
+
+        const button =
+          event.target.closest(
+            '[data-add]'
+          );
+
+
+        if (!button)
+          return;
+
+
+        const id =
+          decodeURIComponent(
+            button.dataset.add
+          );
+
+
+        const product =
+          products.find(
+            item =>
+              String(
+                item.id
+              ) ===
+              String(
+                id
+              )
+          );
+
+
+        if (
+          !product ||
+          product.coming_soon
+        ) {
+
+          return;
+
+        }
+
+
+        const added =
+          addToCart(
+            product,
+            1
+          );
+
+
+        if (added) {
+
+          button.textContent =
+            'Added ✓';
+
+
+          setTimeout(
+            () => {
+
+              button.textContent =
+                'Add to cart';
+
+            },
+            900
+          );
+
+        }
+
+      }
+    );
 
   }
 
 
-  /* =====================================================
-     EVENT LISTENERS
-     ===================================================== */
+  function loadSiteEditorRuntime() {
 
-  document
-    .getElementById(
-      'loginForm'
-    )
-    .addEventListener(
-      'submit',
-      signIn
+    if (
+      document.querySelector(
+        'script[data-site-editor-runtime]'
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    const script =
+      document.createElement(
+        'script'
+      );
+
+
+    script.src =
+      'site-editor.js';
+
+
+    script.dataset
+      .siteEditorRuntime =
+      'true';
+
+
+    document.head.appendChild(
+      script
     );
 
-
-  document
-    .getElementById(
-      'closeModal'
-    )
-    .addEventListener(
-      'click',
-      closeModal
-    );
+  }
 
 
-  document
-    .getElementById(
-      'logoutBtn'
-    )
-    .addEventListener(
-      'click',
-      async () => {
+  function initCommon() {
 
-        if(client){
-
-          await client
-            .auth
-            .signOut();
-
-        }
-
-        location.reload();
-
-      }
-    );
+    updateCartCount();
 
 
-  /* ADD PRODUCT */
+    document
+      .getElementById(
+        'menuBtn'
+      )
+      ?.addEventListener(
+        'click',
+        () => {
 
-  document
-    .getElementById(
-      'addProductBtn'
-    )
-    .addEventListener(
-      'click',
-      () => {
-
-        showModal(
-          `
-            <h2>
-              Add product
-            </h2>
-
-            ${
-              productForm()
-            }
-          `
-        );
-
-
-        document
-          .getElementById(
-            'productForm'
-          )
-          .addEventListener(
-            'submit',
-            saveProduct
-          );
-
-      }
-    );
-
-
-  /* ADD CATEGORY */
-
-  document
-    .getElementById(
-      'addCategoryBtn'
-    )
-    .addEventListener(
-      'click',
-      () => {
-
-        showModal(
-          `
-            <h2>
-              Add category
-            </h2>
-
-            ${
-              categoryForm()
-            }
-          `
-        );
-
-
-        document
-          .getElementById(
-            'categoryForm'
-          )
-          .addEventListener(
-            'submit',
-            saveCategory
-          );
-
-      }
-    );
-
-
-  /* REFRESH ORDERS */
-
-  document
-    .getElementById(
-      'refreshOrdersBtn'
-    )
-    .addEventListener(
-      'click',
-      refreshAll
-    );
-
-
-  /* =====================================================
-     TABS
-     ===================================================== */
-
-  document
-    .querySelectorAll(
-      '.tab'
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          'click',
-          () => {
-
-            document
-              .querySelectorAll(
-                '.tab'
-              )
-              .forEach(
-                tab =>
-                  tab.classList.remove(
-                    'active'
-                  )
-              );
-
-
-            button.classList.add(
-              'active'
+          const mobile =
+            document.getElementById(
+              'mobileNav'
             );
 
 
-            document
-              .querySelectorAll(
-                '.tab-panel'
-              )
-              .forEach(
-                panel =>
-                  panel.hidden =
-                    true
-              );
+          if (mobile) {
 
-
-            const target =
-              document.getElementById(
-                `tab-${button.dataset.tab}`
-              );
-
-
-            if(target){
-
-              target.hidden =
-                false;
-
-            }
+            mobile.hidden =
+              !mobile.hidden;
 
           }
-        );
-
-      }
-    );
-
-
-  /* =====================================================
-     PRODUCT / CATEGORY ACTIONS
-     ===================================================== */
-
-  document.addEventListener(
-    'click',
-    async event => {
-
-      /* EDIT PRODUCT */
-
-      const editProduct =
-        event.target.closest(
-          '[data-edit-product]'
-        );
-
-
-      if(editProduct){
-
-        const product =
-          state.products.find(
-            item =>
-              String(
-                item.id
-              ) ===
-              String(
-                editProduct.dataset
-                  .editProduct
-              )
-          );
-
-
-        if(!product)
-          return;
-
-
-        showModal(
-          `
-            <h2>
-              Edit product
-            </h2>
-
-            ${
-              productForm(
-                product
-              )
-            }
-          `
-        );
-
-
-        document
-          .getElementById(
-            'productForm'
-          )
-          .addEventListener(
-            'submit',
-            saveProduct
-          );
-
-
-        return;
-
-      }
-
-
-      /* DELETE PRODUCT */
-
-      const deleteProduct =
-        event.target.closest(
-          '[data-delete-product]'
-        );
-
-
-      if(deleteProduct){
-
-        const id =
-          deleteProduct.dataset
-            .deleteProduct;
-
-
-        if(
-          !confirm(
-            'Delete this product?'
-          )
-        ){
-
-          return;
-
-        }
-
-
-        const {
-          error
-        } =
-        await client
-          .from(
-            'products'
-          )
-          .delete()
-          .eq(
-            'id',
-            id
-          );
-
-
-        if(error){
-
-          alert(
-            error.message
-          );
-
-        }else{
-
-          await refreshAll();
-
-        }
-
-
-        return;
-
-      }
-
-
-      /* EDIT CATEGORY */
-
-      const editCategory =
-        event.target.closest(
-          '[data-edit-category]'
-        );
-
-
-      if(editCategory){
-
-        const category =
-          state.categories.find(
-            item =>
-              String(
-                item.id
-              ) ===
-              String(
-                editCategory.dataset
-                  .editCategory
-              )
-          );
-
-
-        if(!category)
-          return;
-
-
-        showModal(
-          `
-            <h2>
-              Edit category
-            </h2>
-
-            ${
-              categoryForm(
-                category
-              )
-            }
-          `
-        );
-
-
-        document
-          .getElementById(
-            'categoryForm'
-          )
-          .addEventListener(
-            'submit',
-            saveCategory
-          );
-
-
-        return;
-
-      }
-
-
-      /* DELETE CATEGORY */
-
-      const deleteCategory =
-        event.target.closest(
-          '[data-delete-category]'
-        );
-
-
-      if(deleteCategory){
-
-        const id =
-          deleteCategory.dataset
-            .deleteCategory;
-
-
-        if(
-          !confirm(
-            'Delete this category?'
-          )
-        ){
-
-          return;
-
-        }
-
-
-        const {
-          error
-        } =
-        await client
-          .from(
-            'categories'
-          )
-          .delete()
-          .eq(
-            'id',
-            id
-          );
-
-
-        if(error){
-
-          alert(
-            error.message
-          );
-
-        }else{
-
-          await refreshAll();
-
-        }
-
-      }
-
-    }
-  );
-
-
-  /* =====================================================
-     ORDER STATUS
-     ===================================================== */
-
-  document.addEventListener(
-    'change',
-    async event => {
-
-      const select =
-        event.target.closest(
-          '[data-order-status]'
-        );
-
-
-      if(!select)
-        return;
-
-
-      const {
-        error
-      } =
-      await client
-        .from(
-          'orders'
-        )
-        .update({
-          status:
-            select.value
-        })
-        .eq(
-          'id',
-          select.dataset
-            .orderStatus
-        );
-
-
-      if(error){
-
-        alert(
-          error.message
-        );
-
-      }else{
-
-        await refreshAll();
-
-      }
-
-    }
-  );
-
-
-  /* =====================================================
-     RESTORE EXISTING SESSION
-     ===================================================== */
-
-  if(client){
-
-    client
-      .auth
-      .getSession()
-      .then(
-        ({
-          data
-        }) => {
-
-          if(
-            data?.session
-          ){
-
-            state.user =
-              data.session.user;
-
-            boot();
-
-          }
-
-        }
-      )
-      .catch(
-        error => {
-
-          console.warn(
-            'Session restore failed:',
-            error
-          );
 
         }
       );
 
+
+    document
+      .getElementById(
+        'searchBtn'
+      )
+      ?.addEventListener(
+        'click',
+        () => {
+
+          location.href =
+            'shop.html';
+
+        }
+      );
+
+
+    wireHome();
+
+
+    loadSiteEditorRuntime();
+
   }
+
+
+  window.GLOVAERA = {
+
+    ...window.GLOVAERA,
+
+    client,
+
+    cfg,
+
+    hasSupabase,
+
+    getProducts,
+
+    getCategories,
+
+    money,
+
+    cart,
+
+    saveCart,
+
+    addToCart,
+
+    removeFromCart,
+
+    productCard,
+
+    escapeHtml,
+
+    updateCartCount
+
+  };
+
+
+  document.addEventListener(
+    'DOMContentLoaded',
+    initCommon
+  );
 
 })();
