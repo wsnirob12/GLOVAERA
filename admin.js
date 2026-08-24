@@ -1,5 +1,17 @@
 (function(){
 
+  'use strict';
+
+
+  /* =====================================================
+     SUPABASE CLIENT
+     app.js already creates window.glovaera.client
+     ===================================================== */
+
+  const client =
+    window.glovaera?.client || null;
+
+
   const state = {
     user:null,
     products:[],
@@ -13,7 +25,7 @@
       'loginView'
     );
 
-  const dashboard =
+  const dashboardView =
     document.getElementById(
       'dashboardView'
     );
@@ -34,86 +46,169 @@
     );
 
 
-  const showModal =
-    html => {
-      modalContent.innerHTML =
-        html;
+  /* =====================================================
+     HELPERS
+     ===================================================== */
 
-      modal.hidden =
-        false;
-    };
+  function escapeHtml(
+    value=''
+  ){
 
-
-  const closeModal =
-    () => {
-      modal.hidden =
-        true;
-    };
-
-
-  document
-    .getElementById(
-      'closeModal'
-    )
-    .onclick =
-    closeModal;
-
-
-  /* =========================
-     LOGIN
-     ========================= */
-
-  async function signIn(e){
-
-    e.preventDefault();
-
-
-    if (
-      !window.GLOVAERA?.client
+    if(
+      window.GLOVAERA?.escapeHtml
     ){
 
+      return window.GLOVAERA.escapeHtml(
+        value
+      );
+
+    }
+
+    return String(
+      value
+    ).replace(
+      /[&<>'"]/g,
+      c => ({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        "'":'&#39;',
+        '"':'&quot;'
+      }[c])
+    );
+
+  }
+
+
+  function money(
+    value
+  ){
+
+    if(
+      window.GLOVAERA?.money
+    ){
+
+      return window.GLOVAERA.money(
+        value
+      );
+
+    }
+
+    return `৳${
+      Number(
+        value || 0
+      ).toLocaleString(
+        'en-BD'
+      )
+    }`;
+
+  }
+
+
+  function showModal(
+    html
+  ){
+
+    modalContent.innerHTML =
+      html;
+
+    modal.hidden =
+      false;
+
+  }
+
+
+  function closeModal(){
+
+    modal.hidden =
+      true;
+
+  }
+
+
+  /* =====================================================
+     LOGIN
+     ===================================================== */
+
+  async function signIn(
+    event
+  ){
+
+    event.preventDefault();
+
+
+    if(!client){
+
       loginMsg.textContent =
-        'Connect Supabase first by filling config.js.';
+        'Supabase connection was not initialized. Please refresh the page.';
 
       return;
+
     }
 
 
-    const fd =
+    const form =
       new FormData(
-        e.target
+        event.target
       );
 
 
-    const {
-      data,
-      error
-    } =
-      await GLOVAERA.client
-        .auth
-        .signInWithPassword({
+    loginMsg.textContent =
+      'Signing in...';
+
+
+    try{
+
+      const result =
+        await client.auth.signInWithPassword({
+
           email:
-            fd.get('email'),
+            form.get(
+              'email'
+            ),
 
           password:
-            fd.get('password')
+            form.get(
+              'password'
+            )
+
         });
 
 
-    if(error){
+      if(
+        result.error
+      ){
+
+        loginMsg.textContent =
+          result.error.message;
+
+        return;
+
+      }
+
+
+      state.user =
+        result.data.user;
+
 
       loginMsg.textContent =
-        error.message;
+        '';
 
-      return;
+
+      await boot();
+
+
+    }catch(error){
+
+      console.error(
+        error
+      );
+
+      loginMsg.textContent =
+        error.message ||
+        'Login failed.';
+
     }
-
-
-    state.user =
-      data.user;
-
-
-    await boot();
 
   }
 
@@ -123,35 +218,41 @@
     loginView.hidden =
       true;
 
-    dashboard.hidden =
+    dashboardView.hidden =
       false;
+
 
     await refreshAll();
 
   }
 
 
-  /* =========================
-     LOAD DATA
-     ========================= */
+  /* =====================================================
+     LOAD ALL DATA
+     ===================================================== */
 
   async function refreshAll(){
 
-    const c =
-      GLOVAERA.client;
+    if(!client){
 
-    if(!c) return;
+      return;
+
+    }
 
 
-    const [
-      p,
-      cats,
-      o
-    ] =
+    try{
+
+      const [
+        products,
+        categories,
+        orders
+      ] =
       await Promise.all([
 
-        c
-          .from('products')
+        client
+          .from(
+            'products'
+          )
           .select('*')
           .order(
             'created_at',
@@ -160,15 +261,19 @@
             }
           ),
 
-        c
-          .from('categories')
+        client
+          .from(
+            'categories'
+          )
           .select('*')
           .order(
             'name'
           ),
 
-        c
-          .from('orders')
+        client
+          .from(
+            'orders'
+          )
           .select('*')
           .order(
             'created_at',
@@ -180,140 +285,202 @@
       ]);
 
 
-    state.products =
-      p.data || [];
-
-    state.categories =
-      cats.data || [];
-
-    state.orders =
-      o.data || [];
+      if(
+        products.error
+      ){
+        throw products.error;
+      }
 
 
-    renderOverview();
-    renderProducts();
-    renderCategories();
-    renderOrders();
+      if(
+        categories.error
+      ){
+        throw categories.error;
+      }
+
+
+      if(
+        orders.error
+      ){
+        throw orders.error;
+      }
+
+
+      state.products =
+        products.data ||
+        [];
+
+      state.categories =
+        categories.data ||
+        [];
+
+      state.orders =
+        orders.data ||
+        [];
+
+
+      renderOverview();
+      renderProducts();
+      renderCategories();
+      renderOrders();
+
+
+    }catch(error){
+
+      console.error(
+        error
+      );
+
+      alert(
+        'Could not load admin data: ' +
+        (
+          error.message ||
+          'Unknown error'
+        )
+      );
+
+    }
 
   }
 
 
-  /* =========================
+  /* =====================================================
      OVERVIEW
-     ========================= */
+     ===================================================== */
 
   function renderOverview(){
 
-    document
-      .getElementById(
+    const stats =
+      document.getElementById(
         'statsGrid'
-      )
-      .innerHTML = [
+      );
 
-        [
-          'Products',
-          state.products.length
-        ],
 
-        [
-          'Categories',
-          state.categories.length
-        ],
+    if(!stats)
+      return;
 
-        [
-          'Orders',
-          state.orders.length
-        ],
 
-        [
-          'Pending',
-          state.orders.filter(
-            o =>
-              [
-                'new',
-                'confirmed',
-                'processing'
-              ].includes(
-                o.status
-              )
-          ).length
-        ]
+    const pending =
+      state.orders.filter(
+        order =>
+          [
+            'new',
+            'confirmed',
+            'processing'
+          ].includes(
+            order.status
+          )
+      ).length;
 
+
+    stats.innerHTML = [
+
+      [
+        'Products',
+        state.products.length
+      ],
+
+      [
+        'Categories',
+        state.categories.length
+      ],
+
+      [
+        'Orders',
+        state.orders.length
+      ],
+
+      [
+        'Pending',
+        pending
       ]
-      .map(
-        ([a,b]) =>
-          `
-            <div class="stat-card">
 
-              <span>
-                ${a}
-              </span>
+    ]
+    .map(
+      item => `
 
-              <strong>
-                ${b}
-              </strong>
+        <div class="stat-card">
 
-            </div>
-          `
-      )
-      .join('');
+          <span>
+            ${item[0]}
+          </span>
+
+          <strong>
+            ${item[1]}
+          </strong>
+
+        </div>
+
+      `
+    )
+    .join('');
 
   }
 
 
-  /* =========================
-     PRODUCT LIST
-     ========================= */
+  /* =====================================================
+     PRODUCTS
+     ===================================================== */
 
   function renderProducts(){
 
-    document
-      .getElementById(
+    const list =
+      document.getElementById(
         'productAdminList'
-      )
-      .innerHTML =
+      );
 
+
+    if(!list)
+      return;
+
+
+    list.innerHTML =
       state.products
         .map(
-          p => `
+          product => `
 
             <div class="admin-row">
 
               <img
                 src="${
-                  p.image_url ||
+                  product.image_url ||
                   'logo.png'
                 }"
                 alt=""
               >
 
+
               <div class="grow">
 
                 <strong>
-                  ${GLOVAERA.escapeHtml(
-                    p.name
+                  ${escapeHtml(
+                    product.name
                   )}
                 </strong>
 
+
                 <span>
 
-                  ${GLOVAERA.escapeHtml(
-                    p.category ||
+                  ${escapeHtml(
+                    product.category ||
                     ''
                   )}
 
                   ·
 
-                  ${GLOVAERA.money(
-                    p.sale_price ??
-                    p.price
+                  ${money(
+                    product.sale_price ??
+                    product.price
                   )}
 
                   · Stock
-                  ${p.stock ?? 0}
+                  ${
+                    product.stock ??
+                    0
+                  }
 
                   ${
-                    p.coming_soon
+                    product.coming_soon
                       ? ' · 🚀 Coming Soon'
                       : ''
                   }
@@ -326,8 +493,9 @@
               <button
                 class="btn btn-secondary small"
                 data-edit-product="${
-                  p.id
+                  product.id
                 }"
+                type="button"
               >
                 Edit
               </button>
@@ -336,8 +504,9 @@
               <button
                 class="btn btn-danger small"
                 data-delete-product="${
-                  p.id
+                  product.id
                 }"
+                type="button"
               >
                 Delete
               </button>
@@ -359,35 +528,41 @@
   }
 
 
-  /* =========================
-     CATEGORY LIST
-     ========================= */
+  /* =====================================================
+     CATEGORIES
+     ===================================================== */
 
   function renderCategories(){
 
-    document
-      .getElementById(
+    const list =
+      document.getElementById(
         'categoryAdminList'
-      )
-      .innerHTML =
+      );
 
+
+    if(!list)
+      return;
+
+
+    list.innerHTML =
       state.categories
         .map(
-          c => `
+          category => `
 
             <div class="admin-row">
 
               <div class="grow">
 
                 <strong>
-                  ${GLOVAERA.escapeHtml(
-                    c.name
+                  ${escapeHtml(
+                    category.name
                   )}
                 </strong>
 
+
                 <span>
-                  ${GLOVAERA.escapeHtml(
-                    c.slug ||
+                  ${escapeHtml(
+                    category.slug ||
                     ''
                   )}
                 </span>
@@ -398,8 +573,9 @@
               <button
                 class="btn btn-secondary small"
                 data-edit-category="${
-                  c.id
+                  category.id
                 }"
+                type="button"
               >
                 Edit
               </button>
@@ -408,8 +584,9 @@
               <button
                 class="btn btn-danger small"
                 data-delete-category="${
-                  c.id
+                  category.id
                 }"
+                type="button"
               >
                 Delete
               </button>
@@ -431,21 +608,26 @@
   }
 
 
-  /* =========================
+  /* =====================================================
      ORDERS
-     ========================= */
+     ===================================================== */
 
   function renderOrders(){
 
-    document
-      .getElementById(
+    const list =
+      document.getElementById(
         'orderAdminList'
-      )
-      .innerHTML =
+      );
 
+
+    if(!list)
+      return;
+
+
+    list.innerHTML =
       state.orders
         .map(
-          o => `
+          order => `
 
             <div class="admin-order">
 
@@ -454,55 +636,64 @@
               >
 
                 <strong>
+
                   #
-                  ${GLOVAERA.escapeHtml(
+                  ${escapeHtml(
                     String(
-                      o.id
+                      order.id
                     ).slice(
                       0,
                       8
                     )
                   )}
+
                 </strong>
 
+
                 <span
-                  class="status ${o.status}"
+                  class="status"
                 >
-                  ${o.status}
+                  ${escapeHtml(
+                    order.status
+                  )}
                 </span>
 
               </div>
 
 
               <p>
-                ${GLOVAERA.escapeHtml(
-                  o.customer_name
+
+                ${escapeHtml(
+                  order.customer_name
                 )}
 
                 ·
 
-                ${GLOVAERA.escapeHtml(
-                  o.phone
+                ${escapeHtml(
+                  order.phone
                 )}
+
               </p>
 
 
               <p>
-                ${GLOVAERA.escapeHtml(
-                  o.address
+
+                ${escapeHtml(
+                  order.address
                 )}
 
                 ,
 
-                ${GLOVAERA.escapeHtml(
-                  o.district
+                ${escapeHtml(
+                  order.district
                 )}
+
               </p>
 
 
               <strong>
-                ${GLOVAERA.money(
-                  o.total
+                ${money(
+                  order.total
                 )}
               </strong>
 
@@ -513,7 +704,7 @@
 
                 <select
                   data-order-status="${
-                    o.id
+                    order.id
                   }"
                 >
 
@@ -527,19 +718,20 @@
                       'cancelled'
                     ]
                     .map(
-                      s =>
-                        `
-                          <option
-                            ${
-                              s ===
-                              o.status
-                                ? 'selected'
-                                : ''
-                            }
-                          >
-                            ${s}
-                          </option>
-                        `
+                      status => `
+
+                        <option
+                          ${
+                            status ===
+                            order.status
+                              ? 'selected'
+                              : ''
+                          }
+                        >
+                          ${status}
+                        </option>
+
+                      `
                     )
                     .join('')
                   }
@@ -565,12 +757,12 @@
   }
 
 
-  /* =========================
+  /* =====================================================
      PRODUCT FORM
-     ========================= */
+     ===================================================== */
 
   function productForm(
-    p={}
+    product={}
   ){
 
     return `
@@ -584,7 +776,7 @@
           type="hidden"
           name="id"
           value="${
-            p.id ||
+            product.id ||
             ''
           }"
         >
@@ -597,8 +789,8 @@
           <input
             required
             name="name"
-            value="${GLOVAERA.escapeHtml(
-              p.name ||
+            value="${escapeHtml(
+              product.name ||
               ''
             )}"
           >
@@ -618,21 +810,25 @@
             ${
               state.categories
                 .map(
-                  c =>
-                    `
-                      <option
-                        ${
-                          c.name ===
-                          p.category
-                            ? 'selected'
-                            : ''
-                        }
-                      >
-                        ${GLOVAERA.escapeHtml(
-                          c.name
-                        )}
-                      </option>
-                    `
+                  category => `
+
+                    <option
+                      ${
+                        category.name ===
+                        product.category
+                          ? 'selected'
+                          : ''
+                      }
+                      value="${escapeHtml(
+                        category.name
+                      )}"
+                    >
+                      ${escapeHtml(
+                        category.name
+                      )}
+                    </option>
+
+                  `
                 )
                 .join('')
             }
@@ -649,9 +845,10 @@
           <input
             required
             type="number"
+            min="0"
             name="price"
             value="${
-              p.price ||
+              product.price ||
               0
             }"
           >
@@ -665,9 +862,10 @@
 
           <input
             type="number"
+            min="0"
             name="sale_price"
             value="${
-              p.sale_price ??
+              product.sale_price ??
               ''
             }"
           >
@@ -682,10 +880,10 @@
           <input
             required
             type="number"
-            name="stock"
             min="0"
+            name="stock"
             value="${
-              p.stock ||
+              product.stock ||
               0
             }"
           >
@@ -699,8 +897,8 @@
 
           <input
             name="image_url"
-            value="${GLOVAERA.escapeHtml(
-              p.image_url ||
+            value="${escapeHtml(
+              product.image_url ||
               'logo.png'
             )}"
           >
@@ -728,8 +926,8 @@
           <textarea
             name="description"
             rows="4"
-          >${GLOVAERA.escapeHtml(
-            p.description ||
+          >${escapeHtml(
+            product.description ||
             ''
           )}</textarea>
 
@@ -742,7 +940,7 @@
             type="checkbox"
             name="featured"
             ${
-              p.featured
+              product.featured
                 ? 'checked'
                 : ''
             }
@@ -759,7 +957,7 @@
             type="checkbox"
             name="is_new"
             ${
-              p.is_new
+              product.is_new
                 ? 'checked'
                 : ''
             }
@@ -776,7 +974,7 @@
             type="checkbox"
             name="combo"
             ${
-              p.combo
+              product.combo
                 ? 'checked'
                 : ''
             }
@@ -787,7 +985,8 @@
         </label>
 
 
-        <!-- NEW -->
+        <!-- COMING SOON -->
+
         <label
           class="coming-soon-option"
         >
@@ -796,7 +995,7 @@
             type="checkbox"
             name="coming_soon"
             ${
-              p.coming_soon
+              product.coming_soon
                 ? 'checked'
                 : ''
             }
@@ -821,12 +1020,12 @@
   }
 
 
-  /* =========================
+  /* =====================================================
      CATEGORY FORM
-     ========================= */
+     ===================================================== */
 
   function categoryForm(
-    c={}
+    category={}
   ){
 
     return `
@@ -840,7 +1039,7 @@
           type="hidden"
           name="id"
           value="${
-            c.id ||
+            category.id ||
             ''
           }"
         >
@@ -853,8 +1052,8 @@
           <input
             required
             name="name"
-            value="${GLOVAERA.escapeHtml(
-              c.name ||
+            value="${escapeHtml(
+              category.name ||
               ''
             )}"
           >
@@ -869,8 +1068,8 @@
           <input
             required
             name="slug"
-            value="${GLOVAERA.escapeHtml(
-              c.slug ||
+            value="${escapeHtml(
+              category.slug ||
               ''
             )}"
           >
@@ -878,16 +1077,14 @@
         </label>
 
 
-        <label
-          class="full"
-        >
+        <label class="full">
 
           Image URL
 
           <input
             name="image_url"
-            value="${GLOVAERA.escapeHtml(
-              c.image_url ||
+            value="${escapeHtml(
+              category.image_url ||
               'logo.png'
             )}"
           >
@@ -909,250 +1106,270 @@
   }
 
 
-  /* =========================
+  /* =====================================================
      SAVE PRODUCT
-     ========================= */
+     ===================================================== */
 
   async function saveProduct(
-    e
+    event
   ){
 
-    e.preventDefault();
+    event.preventDefault();
 
 
-    const f =
+    const form =
       new FormData(
-        e.target
+        event.target
       );
 
 
-    let imageUrl =
-      f.get(
-        'image_url'
-      ) ||
-      'logo.png';
+    try{
+
+      let imageUrl =
+        form.get(
+          'image_url'
+        ) ||
+        'logo.png';
 
 
-    const file =
-      f.get(
-        'image_file'
-      );
-
-
-    if(
-      file &&
-      file.size
-    ){
-
-      const safeName =
-        file.name.replace(
-          /[^a-zA-Z0-9._-]/g,
-          '-'
+      const file =
+        form.get(
+          'image_file'
         );
-
-
-      const path =
-        `${crypto.randomUUID()}-${safeName}`;
-
-
-      const up =
-        await GLOVAERA.client
-          .storage
-          .from(
-            'product-images'
-          )
-          .upload(
-            path,
-            file,
-            {
-              upsert:false,
-              contentType:
-                file.type
-            }
-          );
 
 
       if(
-        up.error
+        file &&
+        file.size
       ){
 
-        alert(
-          up.error.message
-        );
-
-        return;
-      }
-
-
-      imageUrl =
-        GLOVAERA.client
-          .storage
-          .from(
-            'product-images'
-          )
-          .getPublicUrl(
-            path
-          )
-          .data
-          .publicUrl;
-
-    }
+        const safeName =
+          file.name.replace(
+            /[^a-zA-Z0-9._-]/g,
+            '-'
+          );
 
 
-    const record = {
-
-      name:
-        f.get(
-          'name'
-        ),
-
-      category:
-        f.get(
-          'category'
-        ),
-
-      price:
-        Number(
-          f.get(
-            'price'
-          )
-        ),
-
-      sale_price:
-        f.get(
-          'sale_price'
-        )
-          ? Number(
-              f.get(
-                'sale_price'
-              )
-            )
-          : null,
-
-      stock:
-        Number(
-          f.get(
-            'stock'
-          )
-        ),
-
-      image_url:
-        imageUrl,
-
-      description:
-        f.get(
-          'description'
-        ),
-
-      featured:
-        f.get(
-          'featured'
-        ) === 'on',
-
-      is_new:
-        f.get(
-          'is_new'
-        ) === 'on',
-
-      combo:
-        f.get(
-          'combo'
-        ) === 'on',
-
-      /* NEW */
-      coming_soon:
-        f.get(
-          'coming_soon'
-        ) === 'on',
-
-      active:true
-
-    };
+        const path =
+          `${crypto.randomUUID()}-${safeName}`;
 
 
-    const id =
-      f.get(
-        'id'
-      );
-
-
-    const q =
-      id
-        ? GLOVAERA.client
+        const upload =
+          await client
+            .storage
             .from(
-              'products'
+              'product-images'
             )
-            .update(
-              record
-            )
-            .eq(
-              'id',
-              id
-            )
-
-        : GLOVAERA.client
-            .from(
-              'products'
-            )
-            .insert(
-              record
+            .upload(
+              path,
+              file,
+              {
+                upsert:false,
+                contentType:
+                  file.type
+              }
             );
 
 
-    const {
-      error
-    } =
-      await q;
+        if(
+          upload.error
+        ){
+
+          alert(
+            upload.error.message
+          );
+
+          return;
+
+        }
 
 
-    if(error){
+        imageUrl =
+          client
+            .storage
+            .from(
+              'product-images'
+            )
+            .getPublicUrl(
+              path
+            )
+            .data
+            .publicUrl;
 
-      alert(
-        error.message
+      }
+
+
+      const record = {
+
+        name:
+          form.get(
+            'name'
+          ),
+
+        category:
+          form.get(
+            'category'
+          ),
+
+        price:
+          Number(
+            form.get(
+              'price'
+            )
+          ),
+
+        sale_price:
+          form.get(
+            'sale_price'
+          )
+            ? Number(
+                form.get(
+                  'sale_price'
+                )
+              )
+            : null,
+
+        stock:
+          Number(
+            form.get(
+              'stock'
+            )
+          ),
+
+        image_url:
+          imageUrl,
+
+        description:
+          form.get(
+            'description'
+          ),
+
+        featured:
+          form.get(
+            'featured'
+          ) === 'on',
+
+        is_new:
+          form.get(
+            'is_new'
+          ) === 'on',
+
+        combo:
+          form.get(
+            'combo'
+          ) === 'on',
+
+        /* NEW */
+
+        coming_soon:
+          form.get(
+            'coming_soon'
+          ) === 'on',
+
+        active:true
+
+      };
+
+
+      const id =
+        form.get(
+          'id'
+        );
+
+
+      const query =
+        id
+
+          ? client
+              .from(
+                'products'
+              )
+              .update(
+                record
+              )
+              .eq(
+                'id',
+                id
+              )
+
+          : client
+              .from(
+                'products'
+              )
+              .insert(
+                record
+              );
+
+
+      const {
+        error
+      } =
+      await query;
+
+
+      if(error){
+
+        alert(
+          error.message
+        );
+
+        return;
+
+      }
+
+
+      closeModal();
+
+      await refreshAll();
+
+
+    }catch(error){
+
+      console.error(
+        error
       );
 
-      return;
+      alert(
+        error.message ||
+        'Could not save product.'
+      );
+
     }
-
-
-    closeModal();
-
-    await refreshAll();
 
   }
 
 
-  /* =========================
+  /* =====================================================
      SAVE CATEGORY
-     ========================= */
+     ===================================================== */
 
   async function saveCategory(
-    e
+    event
   ){
 
-    e.preventDefault();
+    event.preventDefault();
 
 
-    const f =
+    const form =
       new FormData(
-        e.target
+        event.target
       );
 
 
     const record = {
 
       name:
-        f.get(
+        form.get(
           'name'
         ),
 
       slug:
-        f.get(
+        form.get(
           'slug'
         ),
 
       image_url:
-        f.get(
+        form.get(
           'image_url'
         ) ||
         'logo.png'
@@ -1161,14 +1378,15 @@
 
 
     const id =
-      f.get(
+      form.get(
         'id'
       );
 
 
-    const q =
+    const query =
       id
-        ? GLOVAERA.client
+
+        ? client
             .from(
               'categories'
             )
@@ -1180,7 +1398,7 @@
               id
             )
 
-        : GLOVAERA.client
+        : client
             .from(
               'categories'
             )
@@ -1192,7 +1410,7 @@
     const {
       error
     } =
-      await q;
+    await query;
 
 
     if(error){
@@ -1202,6 +1420,7 @@
       );
 
       return;
+
     }
 
 
@@ -1212,9 +1431,9 @@
   }
 
 
-  /* =========================
-     EVENTS
-     ========================= */
+  /* =====================================================
+     EVENT LISTENERS
+     ===================================================== */
 
   document
     .getElementById(
@@ -1228,153 +1447,56 @@
 
   document
     .getElementById(
+      'closeModal'
+    )
+    .addEventListener(
+      'click',
+      closeModal
+    );
+
+
+  document
+    .getElementById(
       'logoutBtn'
     )
-    .onclick =
-    async () => {
+    .addEventListener(
+      'click',
+      async () => {
 
-      await GLOVAERA.client
-        .auth
-        .signOut();
+        if(client){
 
-      location.reload();
+          await client
+            .auth
+            .signOut();
 
-    };
+        }
 
+        location.reload();
+
+      }
+    );
+
+
+  /* ADD PRODUCT */
 
   document
     .getElementById(
       'addProductBtn'
     )
-    .onclick =
-    () => {
-
-      showModal(
-        '<h2>Add product</h2>' +
-        productForm()
-      );
-
-
-      document
-        .getElementById(
-          'productForm'
-        )
-        .onsubmit =
-        saveProduct;
-
-    };
-
-
-  document
-    .getElementById(
-      'addCategoryBtn'
-    )
-    .onclick =
-    () => {
-
-      showModal(
-        '<h2>Add category</h2>' +
-        categoryForm()
-      );
-
-
-      document
-        .getElementById(
-          'categoryForm'
-        )
-        .onsubmit =
-        saveCategory;
-
-    };
-
-
-  document
-    .getElementById(
-      'refreshOrdersBtn'
-    )
-    .onclick =
-    refreshAll;
-
-
-  /* TABS */
-
-  document
-    .querySelectorAll(
-      '.tab'
-    )
-    .forEach(
-      btn =>
-        btn.onclick =
-        () => {
-
-          document
-            .querySelectorAll(
-              '.tab'
-            )
-            .forEach(
-              x =>
-                x.classList.remove(
-                  'active'
-                )
-            );
-
-
-          btn.classList.add(
-            'active'
-          );
-
-
-          document
-            .querySelectorAll(
-              '.tab-panel'
-            )
-            .forEach(
-              x =>
-                x.hidden =
-                  true
-            );
-
-
-          document
-            .getElementById(
-              'tab-' +
-              btn.dataset.tab
-            )
-            .hidden =
-            false;
-
-        }
-    );
-
-
-  /* PRODUCT / CATEGORY ACTIONS */
-
-  document.addEventListener(
-    'click',
-    async e => {
-
-      const ep =
-        e.target.closest(
-          '[data-edit-product]'
-        );
-
-
-      if(ep){
-
-        const p =
-          state.products.find(
-            x =>
-              x.id ===
-              ep.dataset
-                .editProduct
-          );
-
+    .addEventListener(
+      'click',
+      () => {
 
         showModal(
-          '<h2>Edit product</h2>' +
-          productForm(
-            p
-          )
+          `
+            <h2>
+              Add product
+            </h2>
+
+            ${
+              productForm()
+            }
+          `
         );
 
 
@@ -1382,83 +1504,35 @@
           .getElementById(
             'productForm'
           )
-          .onsubmit =
-          saveProduct;
-
-
-        return;
-      }
-
-
-      const dp =
-        e.target.closest(
-          '[data-delete-product]'
-        );
-
-
-      if(dp){
-
-        if(
-          confirm(
-            'Delete this product?'
-          )
-        ){
-
-          const {
-            error
-          } =
-          await GLOVAERA.client
-            .from(
-              'products'
-            )
-            .delete()
-            .eq(
-              'id',
-              dp.dataset
-                .deleteProduct
-            );
-
-
-          if(error){
-
-            alert(
-              error.message
-            );
-
-          } else {
-
-            refreshAll();
-
-          }
-
-        }
-
-        return;
-      }
-
-
-      const ec =
-        e.target.closest(
-          '[data-edit-category]'
-        );
-
-
-      if(ec){
-
-        const c =
-          state.categories.find(
-            x =>
-              x.id ===
-              ec.dataset
-                .editCategory
+          .addEventListener(
+            'submit',
+            saveProduct
           );
 
+      }
+    );
+
+
+  /* ADD CATEGORY */
+
+  document
+    .getElementById(
+      'addCategoryBtn'
+    )
+    .addEventListener(
+      'click',
+      () => {
 
         showModal(
-          '<h2>Edit category</h2>' +
-          categoryForm(
-            c
-          )
+          `
+            <h2>
+              Add category
+            </h2>
+
+            ${
+              categoryForm()
+            }
+          `
         );
 
 
@@ -1466,54 +1540,319 @@
           .getElementById(
             'categoryForm'
           )
-          .onsubmit =
-          saveCategory;
+          .addEventListener(
+            'submit',
+            saveCategory
+          );
+
+      }
+    );
+
+
+  /* REFRESH ORDERS */
+
+  document
+    .getElementById(
+      'refreshOrdersBtn'
+    )
+    .addEventListener(
+      'click',
+      refreshAll
+    );
+
+
+  /* =====================================================
+     TABS
+     ===================================================== */
+
+  document
+    .querySelectorAll(
+      '.tab'
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          'click',
+          () => {
+
+            document
+              .querySelectorAll(
+                '.tab'
+              )
+              .forEach(
+                tab =>
+                  tab.classList.remove(
+                    'active'
+                  )
+              );
+
+
+            button.classList.add(
+              'active'
+            );
+
+
+            document
+              .querySelectorAll(
+                '.tab-panel'
+              )
+              .forEach(
+                panel =>
+                  panel.hidden =
+                    true
+              );
+
+
+            const target =
+              document.getElementById(
+                `tab-${button.dataset.tab}`
+              );
+
+
+            if(target){
+
+              target.hidden =
+                false;
+
+            }
+
+          }
+        );
+
+      }
+    );
+
+
+  /* =====================================================
+     PRODUCT / CATEGORY ACTIONS
+     ===================================================== */
+
+  document.addEventListener(
+    'click',
+    async event => {
+
+      /* EDIT PRODUCT */
+
+      const editProduct =
+        event.target.closest(
+          '[data-edit-product]'
+        );
+
+
+      if(editProduct){
+
+        const product =
+          state.products.find(
+            item =>
+              String(
+                item.id
+              ) ===
+              String(
+                editProduct.dataset
+                  .editProduct
+              )
+          );
+
+
+        if(!product)
+          return;
+
+
+        showModal(
+          `
+            <h2>
+              Edit product
+            </h2>
+
+            ${
+              productForm(
+                product
+              )
+            }
+          `
+        );
+
+
+        document
+          .getElementById(
+            'productForm'
+          )
+          .addEventListener(
+            'submit',
+            saveProduct
+          );
 
 
         return;
+
       }
 
 
-      const dc =
-        e.target.closest(
+      /* DELETE PRODUCT */
+
+      const deleteProduct =
+        event.target.closest(
+          '[data-delete-product]'
+        );
+
+
+      if(deleteProduct){
+
+        const id =
+          deleteProduct.dataset
+            .deleteProduct;
+
+
+        if(
+          !confirm(
+            'Delete this product?'
+          )
+        ){
+
+          return;
+
+        }
+
+
+        const {
+          error
+        } =
+        await client
+          .from(
+            'products'
+          )
+          .delete()
+          .eq(
+            'id',
+            id
+          );
+
+
+        if(error){
+
+          alert(
+            error.message
+          );
+
+        }else{
+
+          await refreshAll();
+
+        }
+
+
+        return;
+
+      }
+
+
+      /* EDIT CATEGORY */
+
+      const editCategory =
+        event.target.closest(
+          '[data-edit-category]'
+        );
+
+
+      if(editCategory){
+
+        const category =
+          state.categories.find(
+            item =>
+              String(
+                item.id
+              ) ===
+              String(
+                editCategory.dataset
+                  .editCategory
+              )
+          );
+
+
+        if(!category)
+          return;
+
+
+        showModal(
+          `
+            <h2>
+              Edit category
+            </h2>
+
+            ${
+              categoryForm(
+                category
+              )
+            }
+          `
+        );
+
+
+        document
+          .getElementById(
+            'categoryForm'
+          )
+          .addEventListener(
+            'submit',
+            saveCategory
+          );
+
+
+        return;
+
+      }
+
+
+      /* DELETE CATEGORY */
+
+      const deleteCategory =
+        event.target.closest(
           '[data-delete-category]'
         );
 
 
-      if(dc){
+      if(deleteCategory){
+
+        const id =
+          deleteCategory.dataset
+            .deleteCategory;
+
 
         if(
-          confirm(
+          !confirm(
             'Delete this category?'
           )
         ){
 
-          const {
-            error
-          } =
-          await GLOVAERA.client
-            .from(
-              'categories'
-            )
-            .delete()
-            .eq(
-              'id',
-              dc.dataset
-                .deleteCategory
-            );
+          return;
+
+        }
 
 
-          if(error){
+        const {
+          error
+        } =
+        await client
+          .from(
+            'categories'
+          )
+          .delete()
+          .eq(
+            'id',
+            id
+          );
 
-            alert(
-              error.message
-            );
 
-          } else {
+        if(error){
 
-            refreshAll();
+          alert(
+            error.message
+          );
 
-          }
+        }else{
+
+          await refreshAll();
 
         }
 
@@ -1523,35 +1862,38 @@
   );
 
 
-  /* ORDER STATUS */
+  /* =====================================================
+     ORDER STATUS
+     ===================================================== */
 
   document.addEventListener(
     'change',
-    async e => {
+    async event => {
 
-      const s =
-        e.target.closest(
+      const select =
+        event.target.closest(
           '[data-order-status]'
         );
 
 
-      if(!s) return;
+      if(!select)
+        return;
 
 
       const {
         error
       } =
-      await GLOVAERA.client
+      await client
         .from(
           'orders'
         )
         .update({
           status:
-            s.value
+            select.value
         })
         .eq(
           'id',
-          s.dataset
+          select.dataset
             .orderStatus
         );
 
@@ -1562,9 +1904,9 @@
           error.message
         );
 
-      } else {
+      }else{
 
-        refreshAll();
+        await refreshAll();
 
       }
 
@@ -1572,13 +1914,13 @@
   );
 
 
-  /* RESTORE SESSION */
+  /* =====================================================
+     RESTORE EXISTING SESSION
+     ===================================================== */
 
-  if(
-    GLOVAERA.client
-  ){
+  if(client){
 
-    GLOVAERA.client
+    client
       .auth
       .getSession()
       .then(
@@ -1587,7 +1929,7 @@
         }) => {
 
           if(
-            data.session
+            data?.session
           ){
 
             state.user =
@@ -1596,6 +1938,16 @@
             boot();
 
           }
+
+        }
+      )
+      .catch(
+        error => {
+
+          console.warn(
+            'Session restore failed:',
+            error
+          );
 
         }
       );
