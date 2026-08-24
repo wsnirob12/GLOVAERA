@@ -4249,3 +4249,152 @@ summary b{
   }
 
 }
+/* =========================================================
+   FINAL CATEGORY SIZE FIX
+   ========================================================= */
+
+.category-grid{
+  display:grid !important;
+  grid-template-columns:repeat(6, minmax(0, 1fr)) !important;
+  gap:16px !important;
+  align-items:stretch !important;
+}
+
+.category-card,
+.category-card > a{
+  min-width:0 !important;
+}
+
+/* Works whether image wrapper exists or not */
+.category-card .category-image,
+.category-card > img{
+  width:100% !important;
+  height:190px !important;
+  min-height:190px !important;
+  max-height:190px !important;
+  flex:0 0 190px !important;
+
+  display:block !important;
+  overflow:hidden !important;
+
+  background:#f8f2ec !important;
+  padding:0 !important;
+  margin:0 !important;
+
+  aspect-ratio:auto !important;
+}
+
+/* Every category image = EXACT same box */
+.category-card .category-image img,
+.category-card > img{
+  width:100% !important;
+  height:100% !important;
+
+  display:block !important;
+
+  object-fit:cover !important;
+  object-position:center !important;
+
+  padding:0 !important;
+  margin:0 !important;
+
+  aspect-ratio:auto !important;
+}
+
+/* Text area */
+.category-card span{
+  height:54px !important;
+  min-height:54px !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  padding:10px !important;
+
+  background:#fff !important;
+
+  font-size:13px !important;
+  font-weight:700 !important;
+  line-height:1.25 !important;
+
+  text-align:center !important;
+}
+
+/* Same total card height */
+.category-card{
+  height:244px !important;
+
+  display:flex !important;
+  flex-direction:column !important;
+
+  overflow:hidden !important;
+}
+
+
+/* Tablet */
+@media(max-width:1100px){
+
+  .category-grid{
+    grid-template-columns:
+      repeat(4, minmax(0,1fr)) !important;
+  }
+
+}
+
+
+/* Mobile */
+@media(max-width:760px){
+
+  .category-grid{
+    grid-template-columns:
+      repeat(3, minmax(0,1fr)) !important;
+
+    gap:14px !important;
+  }
+
+  .category-card{
+    height:215px !important;
+  }
+
+  .category-card .category-image,
+  .category-card > img{
+    height:165px !important;
+    min-height:165px !important;
+    max-height:165px !important;
+    flex-basis:165px !important;
+  }
+
+  .category-card span{
+    height:50px !important;
+    min-height:50px !important;
+
+    font-size:12px !important;
+  }
+
+}
+
+
+/* Small phone */
+@media(max-width:520px){
+
+  .category-grid{
+    grid-template-columns:
+      repeat(2, minmax(0,1fr)) !important;
+
+    gap:12px !important;
+  }
+
+  .category-card{
+    height:205px !important;
+  }
+
+  .category-card .category-image,
+  .category-card > img{
+    height:155px !important;
+    min-height:155px !important;
+    max-height:155px !important;
+    flex-basis:155px !important;
+  }
+
+}
