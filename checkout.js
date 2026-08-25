@@ -1,7 +1,14 @@
 (async function(){
   'use strict';
 
-  const api=window.glovaera || window.GLOVAERA || {};
+  /*
+    IMPORTANT:
+    app.js exposes the cart helpers on window.GLOVAERA, while
+    window.glovaera only contains the Supabase client/config.
+    The old code preferred window.glovaera, so checkout could see
+    the cart count but then read an empty cart. Use GLOVAERA first.
+  */
+  const api=window.GLOVAERA || window.glovaera || {};
   const root=document.getElementById('orderSummary');
   const form=document.getElementById('checkoutForm');
   const msg=document.getElementById('checkoutMessage');
