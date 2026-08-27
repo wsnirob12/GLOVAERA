@@ -1,0 +1,87 @@
+/* GLOVAERA responsive product sizing + mobile polish */
+
+/* Keep desktop layout as-is; improve tablet/mobile product cards. */
+@media (max-width: 900px){
+  .product-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:18px;
+  }
+}
+
+@media (max-width: 760px){
+  .product-grid,
+  .shop-product-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:18px 14px;
+  }
+
+  .product-image-wrap{
+    width:100%;
+    aspect-ratio:1/1;
+    border-radius:12px;
+  }
+
+  .product-image-wrap img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+  }
+
+  .product-badge{
+    top:8px;
+    left:8px;
+    padding:5px 7px;
+    font-size:8px;
+  }
+
+  .product-cat{
+    margin-top:9px;
+    font-size:9px;
+  }
+
+  .product-card h3{
+    margin:4px 0 6px;
+    font-size:15px;
+    line-height:1.35;
+  }
+
+  .price-row{
+    gap:6px;
+  }
+
+  .price-row strong{
+    font-size:14px;
+  }
+
+  .price-row del{
+    font-size:11px;
+  }
+}
+
+@media (max-width: 420px){
+  .product-grid,
+  .shop-product-grid{
+    gap:16px 12px;
+  }
+
+  .product-card h3{
+    font-size:14px;
+  }
+
+  .product-image-wrap{
+    border-radius:11px;
+  }
+}
+
+/* Cart thumbnails: compact on phones, without affecting the product listing. */
+@media (max-width: 480px){
+  .cart-item{
+    grid-template-columns:72px minmax(0,1fr) !important;
+    gap:12px !important;
+  }
+
+  .cart-item>img{
+    width:72px !important;
+    height:72px !important;
+  }
+}
