@@ -8,23 +8,31 @@ window.GLOVAERA_CONFIG = {
   deliveryOutsideDhaka: 120
 };
 
-/*
-  Load the website editor on every page.
-  The admin page already includes site-editor.js directly,
-  so the guard prevents it from being loaded twice there.
-
-  A short timeout lets app.js initialise the Supabase client
-  first, so site-editor.js can use the same client on storefront pages.
-*/
+/* Load the website editor on storefront pages. */
 window.addEventListener('DOMContentLoaded', function () {
   setTimeout(function () {
-    if (document.querySelector('script[src="site-editor.js"]')) {
-      return;
-    }
-
+    if (document.querySelector('script[src="site-editor.js"]')) return;
     var script = document.createElement('script');
     script.src = 'site-editor.js';
     script.async = false;
     document.body.appendChild(script);
   }, 0);
+});
+
+/* Product gallery + optional Color / Size / Type controls. */
+window.addEventListener('DOMContentLoaded', function () {
+  setTimeout(function () {
+    if (location.pathname.endsWith('/product.html') || location.pathname.endsWith('/product')) {
+      var productScript = document.createElement('script');
+      productScript.src = 'product-enhancer.js';
+      productScript.async = false;
+      document.body.appendChild(productScript);
+    }
+    if (location.pathname.endsWith('/admin.html') || location.pathname.endsWith('/admin')) {
+      var adminProductScript = document.createElement('script');
+      adminProductScript.src = 'admin-product-enhancer.js';
+      adminProductScript.async = false;
+      document.body.appendChild(adminProductScript);
+    }
+  }, 250);
 });
