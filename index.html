@@ -11,6 +11,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .section-head-links{display:flex;align-items:center;justify-content:flex-end;gap:18px;flex-wrap:wrap}
+    .section-head-links .text-link:last-child{padding-left:18px;border-left:1px solid var(--border)}
+    @media(max-width:760px){
+      .section-head-links{width:100%;justify-content:flex-start;gap:14px}
+      .section-head-links .text-link:last-child{padding-left:14px}
+    }
+  </style>
 </head>
 <body>
   <div id="announcementBar" class="announcement">✦ COD Available · A New Era of Elegance</div>
