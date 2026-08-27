@@ -1,0 +1,61 @@
+name: Improve GLOVAERA header branding
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  update-branding:
+    if: ${{ !contains(github.event.head_commit.message, '[brand-bot]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update storefront header branding
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          files = [
+              'index.html', 'shop.html', 'cart.html', 'checkout.html',
+              'about.html', 'contact.html', 'faq.html', 'shipping.html',
+              'returns.html'
+          ]
+
+          new_brand = '''<a class="brand" href="index.html">
+            <span class="brand-mark"><img src="logo.png" alt="GLOVAERA logo"></span>
+            <span class="brand-name">Glo<span>VAERA</span></span>
+          </a>'''
+
+          pattern = re.compile(r'<a\s+class="brand"\s+href="index\.html"\s*>.*?</a>', re.S)
+
+          for name in files:
+              p = Path(name)
+              if not p.exists():
+                  continue
+              text = p.read_text(encoding='utf-8')
+              updated, count = pattern.subn(new_brand, text, count=1)
+              if count:
+                  p.write_text(updated, encoding='utf-8')
+
+          css = Path('styles.css')
+          text = css.read_text(encoding='utf-8')
+          marker = '/* GLOVAERA BRAND HEADER OVERRIDE */'
+          if marker not in text:
+              text += '''\n\n/* GLOVAERA BRAND HEADER OVERRIDE */\n.brand{\n  min-width:185px;\n  display:flex;\n  align-items:center;\n  gap:10px;\n}\n.brand-mark{\n  width:46px;\n  height:46px;\n  flex:0 0 46px;\n  display:grid;\n  place-items:center;\n  overflow:hidden;\n  border-radius:50%;\n  background:var(--ivory);\n}\n.brand-mark img{\n  width:100%;\n  height:100%;\n  max-height:none;\n  object-fit:cover;\n  object-position:left center;\n  display:block;\n}\n.brand-name{\n  color:var(--burgundy);\n  font-family:"Playfair Display",Georgia,serif;\n  font-size:21px;\n  font-weight:600;\n  letter-spacing:.015em;\n  white-space:nowrap;\n}\n.brand-name span{\n  color:var(--gold);\n}\n@media (max-width:760px){\n  .site-header{\n    min-height:72px;\n    padding-left:16px;\n    padding-right:16px;\n    gap:12px;\n  }\n  .brand{\n    min-width:0;\n    gap:8px;\n  }\n  .brand-mark{\n    width:42px;\n    height:42px;\n    flex-basis:42px;\n  }\n  .brand-name{\n    font-size:18px;\n  }\n}\n'''
+              css.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html shop.html cart.html checkout.html about.html contact.html faq.html shipping.html returns.html styles.css
+          git diff --cached --quiet && exit 0
+          git commit -m "Apply GLOVAERA logo and name header [brand-bot]"
+          git push
