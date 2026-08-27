@@ -1,1 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200"><image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA..." width="1200" height="1200" preserveAspectRatio="xMidYMid meet"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200">
+<circle cx="600" cy="600" r="555" fill="#70264b"/>
+<circle cx="600" cy="600" r="515" fill="none" stroke="#e8cc8a" stroke-width="7"/>
+<g fill="#e8cc8a">
+<circle cx="600" cy="338" r="29"/>
+<path d="M835 326l18 48 48 18-48 18-18 48-18-48-48-18 48-18z"/>
+<path d="M315 753l12 31 31 12-31 12-12 31-12-31-31-12 31-12z"/>
+<path d="M552 431q48-38 96 0l-11 30h-74z"/>
+<path d="M458 465q142-83 284 0l18 168q10 111-160 111T440 633z"/>
+<circle cx="510" cy="806" r="22"/><circle cx="562" cy="833" r="25"/><circle cx="600" cy="849" r="27"/><circle cx="638" cy="833" r="25"/><circle cx="690" cy="806" r="22"/>
+</g>
+<g fill="none" stroke="#7d5a45" stroke-width="8" stroke-linecap="round">
+<path d="M483 596q117 45 234 0"/><path d="M470 666q130 48 260 0"/>
+</g>
+<path d="M480 735q20 25 40 0 20 25 40 0 20 25 40 0 20 25 40 0 20 25 40 0 20 25 40 0 20 25 40 0" fill="none" stroke="#e8cc8a" stroke-width="8" stroke-linecap="round"/>
+</svg>
