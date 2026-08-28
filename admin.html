@@ -1,384 +1,91 @@
 <!doctype html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>
-    GLOVAERA Admin
-  </title>
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
-    rel="stylesheet"
-  >
-
-  <link
-    rel="stylesheet"
-    href="styles.css"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLOVAERA Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body class="admin-body">
-
 <main class="admin-shell">
-
-  <!-- LOGIN -->
-
-  <section
-    id="loginView"
-    class="admin-card"
-  >
-
-    <a
-      href="index.html"
-      class="admin-brand-link"
-    >
-
-      <img
-        src="logo.png"
-        class="admin-logo"
-        alt="GLOVAERA"
-      >
-
-    </a>
-
-
-    <span class="eyebrow">
-      GLOVAERA CONTROL CENTRE
-    </span>
-
-
-    <h1>
-      Admin login
-    </h1>
-
-
-    <p>
-      Manage your store and website
-      without editing code.
-    </p>
-
-
+  <section id="loginView" class="admin-card">
+    <a href="index.html" class="admin-brand-link"><img src="logo.png" class="admin-logo" alt="GLOVAERA"></a>
+    <span class="eyebrow">GLOVAERA CONTROL CENTRE</span>
+    <h1>Admin login</h1>
+    <p>Manage your store and website without editing code.</p>
     <form id="loginForm">
-
-      <label>
-        Email
-
-        <input
-          required
-          type="email"
-          name="email"
-          autocomplete="email"
-        >
-      </label>
-
-
-      <label>
-        Password
-
-        <input
-          required
-          type="password"
-          name="password"
-          autocomplete="current-password"
-        >
-      </label>
-
-
-      <button
-        class="btn btn-primary"
-        type="submit"
-      >
-        Sign in
-      </button>
-
-
-      <div
-        id="loginMsg"
-        class="form-message"
-      ></div>
-
+      <label>Email<input required type="email" name="email" autocomplete="email"></label>
+      <label>Password<input required type="password" name="password" autocomplete="current-password"></label>
+      <button class="btn btn-primary" type="submit">Sign in</button>
+      <div id="loginMsg" class="form-message"></div>
     </form>
-
   </section>
 
-
-  <!-- DASHBOARD -->
-
-  <section
-    id="dashboardView"
-    hidden
-  >
-
+  <section id="dashboardView" hidden>
     <div class="admin-topbar">
-
-      <div>
-
-        <span class="eyebrow">
-          GLOVAERA CONTROL CENTRE
-        </span>
-
-        <h1>
-          Admin dashboard
-        </h1>
-
-      </div>
-
-
-      <div class="admin-actions">
-
-        <a
-          class="btn btn-secondary"
-          href="index.html"
-        >
-          View store
-        </a>
-
-        <button
-          class="btn btn-dark"
-          id="logoutBtn"
-          type="button"
-        >
-          Sign out
-        </button>
-
-      </div>
-
+      <div><span class="eyebrow">GLOVAERA CONTROL CENTRE</span><h1>Admin dashboard</h1></div>
+      <div class="admin-actions"><a class="btn btn-secondary" href="index.html">View store</a><button class="btn btn-dark" id="logoutBtn" type="button">Sign out</button></div>
     </div>
-
 
     <div class="admin-tabs">
-
-      <button
-        class="tab active"
-        data-tab="overview"
-        type="button"
-      >
-        Overview
-      </button>
-
-      <button
-        class="tab"
-        data-tab="products"
-        type="button"
-      >
-        Products
-      </button>
-
-      <button
-        class="tab"
-        data-tab="categories"
-        type="button"
-      >
-        Categories
-      </button>
-
-      <button
-        class="tab"
-        data-tab="orders"
-        type="button"
-      >
-        Orders
-      </button>
-
-      <!-- NEW -->
-      <button
-        class="tab"
-        data-tab="website-editor"
-        type="button"
-      >
-        🎨 Website Editor
-      </button>
-
+      <button class="tab active" data-tab="overview" type="button">Overview</button>
+      <button class="tab" data-tab="products" type="button">Products</button>
+      <button class="tab" data-tab="categories" type="button">Categories</button>
+      <button class="tab" data-tab="orders" type="button">Orders</button>
+      <button class="tab" data-tab="website-editor" type="button">🎨 Website Editor</button>
     </div>
 
-
-    <!-- OVERVIEW -->
-
-    <section
-      id="tab-overview"
-      class="tab-panel"
-    >
-
-      <div
-        id="statsGrid"
-        class="stats-grid"
-      ></div>
-
+    <section id="tab-overview" class="tab-panel"><div id="statsGrid" class="stats-grid"></div></section>
+    <section id="tab-products" class="tab-panel" hidden>
+      <div class="admin-section-head"><h2>Products</h2><button class="btn btn-primary" id="addProductBtn" type="button">+ Add product</button></div>
+      <div id="productAdminList" class="admin-list"></div>
     </section>
-
-
-    <!-- PRODUCTS -->
-
-    <section
-      id="tab-products"
-      class="tab-panel"
-      hidden
-    >
-
-      <div
-        class="admin-section-head"
-      >
-
-        <h2>
-          Products
-        </h2>
-
-        <button
-          class="btn btn-primary"
-          id="addProductBtn"
-          type="button"
-        >
-          + Add product
-        </button>
-
-      </div>
-
-
-      <div
-        id="productAdminList"
-        class="admin-list"
-      ></div>
-
+    <section id="tab-categories" class="tab-panel" hidden>
+      <div class="admin-section-head"><h2>Categories</h2><button class="btn btn-primary" id="addCategoryBtn" type="button">+ Add category</button></div>
+      <div id="categoryAdminList" class="admin-list"></div>
     </section>
-
-
-    <!-- CATEGORIES -->
-
-    <section
-      id="tab-categories"
-      class="tab-panel"
-      hidden
-    >
-
-      <div
-        class="admin-section-head"
-      >
-
-        <h2>
-          Categories
-        </h2>
-
-        <button
-          class="btn btn-primary"
-          id="addCategoryBtn"
-          type="button"
-        >
-          + Add category
-        </button>
-
-      </div>
-
-
-      <div
-        id="categoryAdminList"
-        class="admin-list"
-      ></div>
-
+    <section id="tab-orders" class="tab-panel" hidden>
+      <div class="admin-section-head"><h2>Orders</h2><button class="btn btn-secondary" id="refreshOrdersBtn" type="button">Refresh</button></div>
+      <div id="orderAdminList" class="admin-list"></div>
     </section>
-
-
-    <!-- ORDERS -->
-
-    <section
-      id="tab-orders"
-      class="tab-panel"
-      hidden
-    >
-
-      <div
-        class="admin-section-head"
-      >
-
-        <h2>
-          Orders
-        </h2>
-
-        <button
-          class="btn btn-secondary"
-          id="refreshOrdersBtn"
-          type="button"
-        >
-          Refresh
-        </button>
-
-      </div>
-
-
-      <div
-        id="orderAdminList"
-        class="admin-list"
-      ></div>
-
-    </section>
-
-
-    <!-- WEBSITE EDITOR -->
-
-    <section
-      id="tab-website-editor"
-      class="tab-panel"
-      hidden
-    >
-
-      <div
-        id="websiteEditorRoot"
-      ></div>
-
-    </section>
-
+    <section id="tab-website-editor" class="tab-panel" hidden><div id="websiteEditorRoot"></div></section>
   </section>
-
 </main>
 
+<div id="modal" class="modal" hidden><div class="modal-card"><button class="modal-close" id="closeModal" type="button">×</button><div id="modalContent"></div></div></div>
 
-<!-- MODAL -->
-
-<div
-  id="modal"
-  class="modal"
-  hidden
->
-
-  <div class="modal-card">
-
-    <button
-      class="modal-close"
-      id="closeModal"
-      type="button"
-    >
-      ×
-    </button>
-
-    <div
-      id="modalContent"
-    ></div>
-
-  </div>
-
-</div>
-
-
-<script
-  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-
 <script src="app.js"></script>
-
 <script src="admin.js"></script>
-
 <script src="site-editor.js"></script>
+<script src="homepage-products-editor.js"></script>
 
+<style>
+.homepage-products-editor-card{margin-top:22px;background:var(--surface,#fff);border:1px solid var(--border,#eadfe4);border-radius:16px;padding:24px}
+.homepage-products-editor-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:22px}
+.homepage-products-editor-head h3{margin:6px 0 7px;font-family:"Playfair Display",serif;font-size:25px}
+.homepage-products-editor-head p{margin:0;max-width:760px;color:#735f69;line-height:1.6}
+.homepage-products-mode-grid,.homepage-products-custom-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.homepage-products-mode-card,.homepage-products-picker{border:1px solid var(--border,#eadfe4);border-radius:13px;padding:17px}
+.homepage-products-mode-card{display:flex;flex-direction:column;gap:12px}
+.homepage-products-mode-card strong{font-size:16px}
+.homepage-products-mode-card label{display:flex;flex-direction:column;gap:7px;color:#735f69;font-size:13px}
+.homepage-products-mode-card select{padding:11px 12px;border:1px solid #e1d5db;border-radius:9px;background:#fff;font:inherit}
+.homepage-products-custom-grid{margin-top:16px}
+.homepage-products-picker-head{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px;align-items:center}
+.homepage-products-picker-head span{font-size:12px;color:#8b747e}
+.homepage-products-choice-list{display:grid;gap:8px;max-height:430px;overflow:auto}
+.homepage-product-choice{display:flex;align-items:center;gap:10px;padding:9px;border:1px solid transparent;border-radius:10px;cursor:pointer;background:#fbf8f2}
+.homepage-product-choice:hover{border-color:#e6d5dd}
+.homepage-product-choice input{width:18px;height:18px;accent-color:#6d2348;flex:0 0 auto}
+.homepage-product-choice img{width:52px;height:52px;object-fit:cover;border-radius:9px;flex:0 0 auto}
+.homepage-product-choice span{display:flex;flex-direction:column;gap:3px;min-width:0}
+.homepage-product-choice b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.homepage-product-choice small{font-size:11px;color:#8b747e}
+.homepage-products-save-row{margin-top:18px;display:flex;justify-content:space-between;align-items:center;gap:16px;color:#735f69;font-size:12px}
+@media(max-width:760px){.homepage-products-editor-card{padding:16px}.homepage-products-editor-head,.homepage-products-custom-grid,.homepage-products-mode-grid{grid-template-columns:1fr;display:grid}.homepage-products-save-row{align-items:stretch;flex-direction:column}.homepage-products-save-row .btn{width:100%}.homepage-products-picker-head{align-items:flex-start;flex-direction:column}}
+</style>
 </body>
-
 </html>
