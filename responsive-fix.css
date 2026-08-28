@@ -8,11 +8,17 @@
   }
 }
 
+/* Mobile: use 2 columns so product images are large and easy to see. */
 @media (max-width: 760px){
   .product-grid,
-  .shop-product-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:18px 14px;
+  .shop-product-grid,
+  .home-all-products .product-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:22px 14px !important;
+  }
+
+  .product-card{
+    min-width:0;
   }
 
   .product-image-wrap{
@@ -60,8 +66,10 @@
 
 @media (max-width: 420px){
   .product-grid,
-  .shop-product-grid{
-    gap:16px 12px;
+  .shop-product-grid,
+  .home-all-products .product-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:18px 10px !important;
   }
 
   .product-card h3{
